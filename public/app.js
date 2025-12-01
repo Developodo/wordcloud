@@ -14,48 +14,58 @@ let currentSession = null;
 // -------------------- Organizador --------------------
 if (window.APP_ROLE === 'organizer') {
 
-    $('createBtn')?.addEventListener('click', async () => {
-        const question = prompt("Introduce la pregunta para esta sesión:");
-        if (!question) return alert("Debes introducir una pregunta");
+    const createBtn = $('createBtn');
+    if (createBtn) {
+        createBtn.addEventListener('click', async () => {
+            const question = prompt("Introduce la pregunta para esta sesión:");
+            if (!question) return alert("Debes introducir una pregunta");
 
-        const res = await fetch(BACKEND + '/create-session', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ question })
+            const res = await fetch(BACKEND + '/create-session', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ question })
+            });
+            const { sessionId } = await res.json();
+            currentSession = sessionId;
+
+            const sessionIdEl = $('sessionId');
+            if (sessionIdEl) sessionIdEl.textContent = sessionId;
+
+            const url = BACKEND + '/visitor.html#session=' + sessionId;
+            const sessionUrlEl = $('sessionUrl');
+            if (sessionUrlEl) sessionUrlEl.textContent = url;
+
+            // Generar QR
+            const qrEl = $('qrcode');
+            if (qrEl) {
+                qrEl.innerHTML = '';
+                new QRCode(qrEl, { text: url, width: 240, height: 240 });
+            }
+
+            const sessionBoxEl = $('sessionBox');
+            if (sessionBoxEl) sessionBoxEl.classList.remove('hidden');
+
+            const newQuestionBtn = $('newQuestionBtn');
+            if (newQuestionBtn) newQuestionBtn.style.setProperty('display', 'inline-block');
+
+            joinSession(sessionId);
         });
-        const { sessionId } = await res.json();
-        currentSession = sessionId;
+    }
 
-        $('sessionId')?.textContent = sessionId;
-        const url = BACKEND + '/visitor.html#session=' + sessionId;
-        $('sessionUrl')?.textContent = url;
+    const newQuestionBtn = $('newQuestionBtn');
+    if (newQuestionBtn) {
+        newQuestionBtn.addEventListener('click', () => {
+            if (!currentSession) return alert("Crea primero una sesión");
 
-        // Generar QR
-        const qrEl = $('qrcode');
-        if (qrEl) {
-            qrEl.innerHTML = '';
-            new QRCode(qrEl, { text: url, width: 240, height: 240 });
-        }
+            const question = prompt("Introduce la nueva pregunta:");
+            if (!question) return;
 
-        $('sessionBox')?.classList.remove('hidden');
-        $('newQuestionBtn')?.style.setProperty('display', 'inline-block');
+            socket.emit("newQuestion", { sessionId: currentSession, question });
 
-        joinSession(sessionId);
-    });
-
-
-    // Nueva pregunta
-    $('newQuestionBtn')?.addEventListener('click', () => {
-        if (!currentSession) return alert("Crea primero una sesión");
-
-        const question = prompt("Introduce la nueva pregunta:");
-        if (!question) return;
-
-        socket.emit("newQuestion", { sessionId: currentSession, question });
-
-        const el = $('wordCount');
-        if (el) el.textContent = '0';
-    });
+            const wordCountEl = $('wordCount');
+            if (wordCountEl) wordCountEl.textContent = '0';
+        });
+    }
 }
 
 // -------------------- Visitante --------------------
@@ -67,7 +77,8 @@ if (window.APP_ROLE === 'visitor') {
         }
     });
 
-    $('sendBtn')?.addEventListener('click', sendWordsFromInput);
+    const sendBtn = $('sendBtn');
+    if (sendBtn) sendBtn.addEventListener('click', sendWordsFromInput);
 }
 
 // -------------------- Funciones comunes --------------------
@@ -78,8 +89,8 @@ function joinSession(sessionId) {
 
 // Recibir número de participantes
 socket.on('participants', n => {
-    const el = $('count');
-    if (el) el.textContent = n;
+    const countEl = $('count');
+    if (countEl) countEl.textContent = n;
 });
 
 // Recibir nube de palabras y renderizar
@@ -112,14 +123,14 @@ socket.on('cloud', map => {
 
 // Recibir pregunta
 socket.on("question", q => {
-    const el = $('question');
-    if (el) el.textContent = q;
+    const questionEl = $('question');
+    if (questionEl) questionEl.textContent = q;
 });
 
 // Recibir número total de palabras enviadas
 socket.on("wordCount", count => {
-    const el = $('wordCount');
-    if (el) el.textContent = count;
+    const wordCountEl = $('wordCount');
+    if (wordCountEl) wordCountEl.textContent = count;
 });
 
 // Función para enviar palabras (máx 3)
