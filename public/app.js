@@ -151,15 +151,15 @@ if (window.APP_ROLE === 'visitor' && currentSession) {
     // Desbloqueo al recibir nueva pregunta
     socket.on("question", q => {
 
-        if (currentSession) {
-            const sessionKey = `sentWords_${currentSession}`;
-            localStorage.removeItem(sessionKey);
-        }
+        const sessionKey = `sentWords_${currentSession}`;
 
-        wordsInput.disabled = false;
-        sendBtn.disabled = false;
-        canSend = true;
-        wordsInput.focus();
+        // 🔒 Solo desbloquear si NO se ha enviado
+        if (!localStorage.getItem(sessionKey)) {
+            if (wordsInput) wordsInput.disabled = false;
+            if (sendBtn) sendBtn.disabled = false;
+            canSend = true;
+            if (wordsInput) wordsInput.focus();
+        }
     });
 }
 
