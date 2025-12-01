@@ -1,93 +1,80 @@
-// server.js
 import express from "express";
 import { createServer } from "http";
 import { Server } from "socket.io";
 import cors from "cors";
 import crypto from "crypto";
+import path from "path";
+import { fileURLToPath } from "url";
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 const app = express();
 app.use(cors());
-app.use(express.static("../public")); // Sirve la web
 app.use(express.json());
 
-const httpServer = createServer(app);
-const io = new Server(httpServer, { cors: { origin: "*" } });
+// Servir frontend
+app.use(express.static(path.join(__dirname, 'public')));
 
-// Sesiones en memoria
+// -------------------- Sesiones --------------------
 let sessions = {};
-
 function createSessionId() {
     return crypto.randomBytes(3).toString("hex").toUpperCase();
 }
 
-// Crear sesión (REST)
+// Crear sesión (API)
 app.post("/create-session", (req, res) => {
     const id = createSessionId();
-    sessions[id] = {
-        wordMap: {},
-        participants: 0,
-    };
+    sessions[id] = { wordMap: {}, participants: 0 };
     res.json({ sessionId: id });
 });
 
-// WebSockets
+// Servir index.html para cualquier ruta no API
+app.get('*', (req, res) => {
+    res.sendFile(path.join(__dirname, 'public/index.html'));
+});
+
+// -------------------- WebSockets --------------------
+const httpServer = createServer(app);
+const io = new Server(httpServer, { cors: { origin: "*" } });
+
 io.on("connection", (socket) => {
-    console.log("Cliente conectado");
 
-    // Unirse a sesión
     socket.on("joinSession", (sessionId) => {
-        if (!sessions[sessionId]) {
-            sessions[sessionId] = { wordMap: {}, participants: 0 };
-        }
-
+        if (!sessions[sessionId]) sessions[sessionId] = { wordMap: {}, participants: 0 };
         socket.join(sessionId);
         socket.data.sessionId = sessionId;
-
         sessions[sessionId].participants++;
         io.to(sessionId).emit("participants", sessions[sessionId].participants);
-
         io.to(sessionId).emit("cloud", sessions[sessionId].wordMap);
     });
 
-    // Recibir palabras
     socket.on("sendWords", (words) => {
         const sessionId = socket.data.sessionId;
         if (!sessionId) return;
-
         const s = sessions[sessionId];
-
-        words.forEach((w) => {
-            const key = w.toLowerCase();
-            s.wordMap[key] = (s.wordMap[key] || 0) + 1;
-        });
-
+        words.forEach(w => s.wordMap[w.toLowerCase()] = (s.wordMap[w.toLowerCase()] || 0) + 1);
         io.to(sessionId).emit("cloud", s.wordMap);
     });
 
-    // Reset
     socket.on("reset", () => {
         const sessionId = socket.data.sessionId;
         if (!sessionId) return;
-
         sessions[sessionId].wordMap = {};
         io.to(sessionId).emit("cloud", {});
     });
 
-    // Desconexión
     socket.on("disconnect", () => {
         const sessionId = socket.data.sessionId;
         if (!sessionId || !sessions[sessionId]) return;
-
         sessions[sessionId].participants--;
         io.to(sessionId).emit("participants", sessions[sessionId].participants);
-
-        if (sessions[sessionId].participants <= 0) {
-            delete sessions[sessionId];
-        }
+        if (sessions[sessionId].participants <= 0) delete sessions[sessionId];
     });
+
 });
 
-// Start
+// -------------------- Start server --------------------
 const PORT = process.env.PORT || 3000;
 httpServer.listen(PORT, () => {
     console.log(`Servidor iniciado en http://localhost:${PORT}`);
