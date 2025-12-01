@@ -75,14 +75,18 @@ socket.on('participants', n => {
 // Recibir nube de palabras y renderizar
 socket.on('cloud', map => {
     const list = Object.entries(map || {}).map(([w, f]) => [w, f]);
+    const canvas = document.getElementById('cloud');
+    if (!canvas) return;
+    const width = canvas.clientWidth || canvas.width;
+    const height = canvas.clientHeight || canvas.height;
+
     try {
-        WordCloud(document.getElementById('cloud'), {
+        WordCloud(canvas, {
             list,
-            gridSize: Math.round(16 * $('#cloud').width() / 1024), // ajusta densidad
+            gridSize: Math.round(16 * width / 1024), // ajusta densidad
             weightFactor: function (size) {
-                // calcula peso relativo según frecuencia y número de palabras
                 const maxFreq = list.length ? Math.max(...list.map(([_, f]) => f)) : 1;
-                return $('#cloud').width() / 20 * (size / maxFreq);
+                return width / 20 * (size / maxFreq);
             },
             fontFamily: 'Segoe UI, Arial',
             color: 'random-dark',
@@ -94,6 +98,7 @@ socket.on('cloud', map => {
         console.warn('WordCloud render error', e);
     }
 });
+
 
 
 // Función para enviar palabras
