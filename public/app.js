@@ -9,7 +9,19 @@ const socket = io(BACKEND);
 // Helper
 const $ = (id) => document.getElementById(id);
 
-let currentSession = null;
+const url = new URL(location.href);
+let sid = url.searchParams.get('session');
+if (!sid && location.hash) {
+    const m = location.hash.match(/session=([^&]+)/);
+    if (m) sid = m[1];
+}
+if (!sid) {
+    const h = location.hash.split('/');
+    sid = h[h.length - 1];
+}
+
+window.FORCED_SESSION = sid;
+currentSession = sid; // 🔥 CLAVE: definimos la sesión antes de conectarnos
 
 // -------------------- Organizador --------------------
 if (window.APP_ROLE === 'organizer') {
@@ -71,7 +83,7 @@ if (window.APP_ROLE === 'organizer') {
 }
 
 // -------------------- Visitante --------------------
-if (window.APP_ROLE === 'visitor') {
+if (window.APP_ROLE === 'visitor' && currentSession) {
     let canSend = true;
     const sendBtn = $('sendBtn');
     const wordsInput = $('wordsInput');
