@@ -76,6 +76,21 @@ io.on("connection", (socket) => {
         if (sessions[sessionId].participants <= 0) delete sessions[sessionId];
     });
 
+    socket.on("newQuestion", ({ sessionId, question }) => {
+        if (!sessions[sessionId]) return;
+
+        // Guardar nueva pregunta
+        sessions[sessionId].question = question;
+
+        // Resetear nube
+        sessions[sessionId].wordMap = {};
+
+        // Enviar nueva nube vacía y pregunta a todos en la sesión
+        io.to(sessionId).emit("cloud", sessions[sessionId].wordMap);
+        io.to(sessionId).emit("question", question);
+    });
+
+
 });
 
 // -------------------- Start server --------------------

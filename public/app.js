@@ -38,18 +38,36 @@ if (window.APP_ROLE === 'organizer') {
 
         $('sessionBox').classList.remove('hidden');
 
-        // El organizador también se une a la sala
+        // Mostrar botón Nueva pregunta
+        $('newQuestionBtn').style.display = 'inline-block';
+
+        // El organizador se une a la sala
         joinSession(sessionId);
     });
-
-    // Enviar palabras
-    $('sendBtn').addEventListener('click', sendWordsFromInput);
 
     // Reset de la nube
     $('resetBtn').addEventListener('click', () => {
         if (!currentSession) return alert('Crea una sesión primero');
         if (!confirm('Resetear la nube?')) return;
         socket.emit('reset');
+        // reset contador de palabras
+        const el = $('wordCount');
+        if (el) el.textContent = '0';
+    });
+
+    // Nueva pregunta
+    $('newQuestionBtn').addEventListener('click', () => {
+        if (!currentSession) return alert("Crea primero una sesión");
+
+        const question = prompt("Introduce la nueva pregunta:");
+        if (!question) return;
+
+        // Emitir al servidor que hay nueva pregunta y reset de nube
+        socket.emit("newQuestion", { sessionId: currentSession, question });
+
+        // Reset contador de palabras localmente
+        const el = $('wordCount');
+        if (el) el.textContent = '0';
     });
 }
 
@@ -83,7 +101,6 @@ socket.on('cloud', map => {
     const canvas = document.getElementById('cloud');
     if (!canvas) return;
     const width = canvas.clientWidth || canvas.width;
-    const height = canvas.clientHeight || canvas.height;
 
     try {
         WordCloud(canvas, {
@@ -106,13 +123,19 @@ socket.on('cloud', map => {
     }
 });
 
+// Recibir pregunta
 socket.on("question", q => {
-    const el = document.getElementById('question');
+    const el = $('question');
     if (el) el.textContent = q;
 });
 
+// Recibir número total de palabras enviadas
+socket.on("wordCount", count => {
+    const el = $('wordCount');
+    if (el) el.textContent = count;
+});
 
-// Función para enviar palabras
+// Función para enviar palabras (máx 3)
 function sendWordsFromInput() {
     if (!currentSession) return alert('No estás en ninguna sesión');
 
@@ -120,7 +143,7 @@ function sendWordsFromInput() {
     if (!inp) return;
     const raw = inp.value.trim();
     if (!raw) return;
-    const words = raw.split(/\s+/).slice(0, 3); // máximo 3 palabras
+    const words = raw.split(/\s+/).slice(0, 3);
     socket.emit('sendWords', words);
     inp.value = '';
 }

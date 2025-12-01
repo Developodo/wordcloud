@@ -1,5 +1,5 @@
 <!doctype html>
-<html>
+<html lang="es">
 
 <head>
     <meta charset="utf-8">
@@ -9,15 +9,83 @@
     <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/wordcloud@1.1.2/src/wordcloud2.js"></script>
     <script src="https://cdn.jsdelivr.net/gh/davidshimjs/qrcodejs/qrcode.min.js"></script>
+    <style>
+        body {
+            font-family: "Segoe UI", Arial, sans-serif;
+            background: #f5f5f5;
+            margin: 0;
+            padding: 0;
+            text-align: center;
+        }
+
+        main.card {
+            max-width: 1200px;
+            margin: 20px auto;
+            background: #fff;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+        }
+
+        h1 {
+            margin-bottom: 20px;
+            font-size: 1.8em;
+        }
+
+        .controls {
+            margin-bottom: 20px;
+        }
+
+        button {
+            background: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            padding: 10px 20px;
+            margin: 5px;
+            font-size: 1em;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+
+        button:hover {
+            background: #45a049;
+        }
+
+        button:disabled {
+            background: #aaa;
+            cursor: not-allowed;
+        }
+
+        #qrcode {
+            margin: 20px auto;
+            width: 240px;
+            height: 240px;
+        }
+
+        #cloud {
+            width: 100%;
+            max-width: 1200px;
+            height: 600px;
+            margin: 20px auto;
+            display: block;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+        }
+
+        #newQuestionBtn {
+            display: none;
+        }
+    </style>
 </head>
 
 <body>
     <main class="card">
         <h1>Live Wordcloud — Organizador</h1>
 
-
         <div class="controls">
             <button id="createBtn">Crear sesión</button>
+            <button id="newQuestionBtn">Nueva pregunta</button>
             <div id="sessionBox" class="hidden">
                 <p>Session ID: <strong id="sessionId"></strong></p>
                 <div id="qrcode"></div>
@@ -25,26 +93,16 @@
             </div>
         </div>
 
-
-        <div class="inputRow" style="display:none">
-            <input id="wordsInput" placeholder="Máx 3 palabras separadas por espacio">
-            <button id="sendBtn">Enviar</button>
-            <button id="resetBtn">Reset</button>
-        </div>
-
-
         <p>Participantes: <span id="count">0</span></p>
+        <p>Palabras enviadas: <span id="wordCount">0</span></p>
 
-
-        <canvas id="cloud" width="800" height="400"></canvas>
+        <canvas id="cloud" width="800" height="600"></canvas>
     </main>
 
     <script>
-        // Inicia rol organizador
         window.APP_ROLE = 'organizer';
     </script>
     <script src="/app.js"></script>
-
 </body>
 
 </html>
