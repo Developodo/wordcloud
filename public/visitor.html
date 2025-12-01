@@ -1,11 +1,122 @@
 <!doctype html>
-<html>
+<html lang="es">
 
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width,initial-scale=1">
-    <title>Visita — Live Wordcloud</title>
-    <link rel="stylesheet" href="/style.css">
+    <title>Live Wordcloud — Participante</title>
+
+    <!-- CSS básico -->
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap');
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            font-family: 'Roboto', sans-serif;
+            background: #f0f2f5;
+            color: #333;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        main.card {
+            background: #fff;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.08);
+            width: 100%;
+            max-width: 900px;
+        }
+
+        h1 {
+            text-align: center;
+            margin-bottom: 20px;
+            font-weight: 700;
+            color: #1a73e8;
+        }
+
+        #sessionId {
+            font-weight: bold;
+        }
+
+        .inputRow {
+            display: flex;
+            justify-content: center;
+            margin: 20px 0;
+            gap: 10px;
+        }
+
+        #wordsInput {
+            flex: 1;
+            padding: 10px 15px;
+            font-size: 1.1rem;
+            border-radius: 8px;
+            border: 1px solid #ccc;
+            transition: border 0.3s;
+        }
+
+        #wordsInput:focus {
+            border-color: #1a73e8;
+            outline: none;
+        }
+
+        #sendBtn {
+            padding: 10px 25px;
+            font-size: 1.1rem;
+            border: none;
+            border-radius: 8px;
+            background: #1a73e8;
+            color: #fff;
+            font-weight: 700;
+            cursor: pointer;
+            transition: background 0.3s, transform 0.2s;
+        }
+
+        #sendBtn:hover:not(:disabled) {
+            background: #1666c1;
+            transform: translateY(-2px);
+        }
+
+        #sendBtn:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+
+        #question {
+            font-size: 1.2rem;
+            display: inline-block;
+            padding: 5px 10px;
+            border-radius: 6px;
+            transition: all 0.6s ease;
+        }
+
+        #cloud {
+            display: block;
+            margin: 30px auto 0 auto;
+            width: 100%;
+            height: 400px;
+            border-radius: 12px;
+            background: #fff;
+        }
+
+        p {
+            margin: 8px 0;
+            font-size: 1rem;
+        }
+
+        span#count {
+            font-weight: 700;
+            color: #1a73e8;
+        }
+    </style>
+
     <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/wordcloud@1.1.2/src/wordcloud2.js"></script>
 </head>
@@ -18,15 +129,14 @@
         <p><strong>Pregunta:</strong> <span id="question"></span></p>
 
         <div class="inputRow">
-            <input id="wordsInput" placeholder="Máx 3 palabras" />
+            <input id="wordsInput" placeholder="Máx 2 palabras" />
             <button id="sendBtn">Enviar</button>
         </div>
 
-
         <p>Participantes: <span id="count">0</span></p>
-        <canvas id="cloud" width="800" height="400" style="display: none;"></canvas>
-    </main>
 
+        <canvas id="cloud"></canvas>
+    </main>
 
     <script>
         // rol visitante y sessionId
@@ -46,9 +156,33 @@
         document.getElementById('sessionId').textContent = sid || 'N/A';
         window.FORCED_SESSION = sid;
     </script>
+
     <script src="/socket.io/socket.io.js"></script>
     <script src="/app.js"></script>
 
+    <script>
+        // Efecto impresionante de nueva pregunta (opcional extra)
+        const questionEl = document.getElementById('question');
+        socket.on('question', q => {
+            if (!questionEl) return;
+
+            questionEl.textContent = q;
+
+            // Efecto: escala + fade + color
+            questionEl.style.transition = 'none';
+            questionEl.style.transform = 'scale(1.2)';
+            questionEl.style.backgroundColor = '#fffa65';
+            questionEl.style.color = '#1a73e8';
+            questionEl.offsetHeight; // forzar reflow
+            questionEl.style.transition = 'all 0.8s ease';
+            questionEl.style.transform = 'scale(1)';
+            questionEl.style.backgroundColor = 'transparent';
+            questionEl.style.color = '#333';
+
+            // Vibración fuerte si es compatible
+            if (navigator.vibrate) navigator.vibrate([300, 100, 300]);
+        });
+    </script>
 </body>
 
 </html>

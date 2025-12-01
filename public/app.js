@@ -78,7 +78,68 @@ if (window.APP_ROLE === 'visitor') {
     });
 
     const sendBtn = $('sendBtn');
+    const wordsInput = $('wordsInput');
+
     if (sendBtn) sendBtn.addEventListener('click', sendWordsFromInput);
+    if (wordsInput) wordsInput.addEventListener('keypress', e => {
+        if (e.key === 'Enter') sendWordsFromInput();
+    });
+
+    let canSend = true;
+
+    // Función para normalizar texto: minúsculas y quitar tildes
+    function normalizeText(text) {
+        return text
+            .toLowerCase()
+            .normalize("NFD")
+            .replace(/[\u0300-\u036f]/g, '')
+            .trim();
+    }
+
+    // Función para enviar palabras (máx 2)
+    function sendWordsFromInput() {
+        if (!canSend) return;
+        if (!currentSession) return alert('No estás en ninguna sesión');
+
+        const raw = wordsInput.value.trim();
+        if (!raw) return;
+
+        // Separar por espacios, máximo 2 palabras
+        const words = raw.split(/\s+/).slice(0, 2).map(normalizeText);
+        if (words.length === 0) return;
+
+        // Enviar al servidor
+        socket.emit('sendWords', { session: currentSession, words });
+
+        // Limpiar input y bloquear hasta nueva pregunta
+        wordsInput.value = '';
+        wordsInput.disabled = true;
+        sendBtn.disabled = true;
+        canSend = false;
+    }
+
+    // Desbloquear input cuando llegue nueva pregunta
+    socket.on("question", q => {
+        const questionEl = $('question');
+        if (questionEl) questionEl.textContent = q;
+
+        // Efecto fade-in y resaltado
+        questionEl.style.transition = 'none';
+        questionEl.style.backgroundColor = '#ffff99';
+        questionEl.style.padding = '5px';
+        questionEl.style.borderRadius = '4px';
+        questionEl.offsetHeight; // forzar reflow
+        questionEl.style.transition = 'background-color 1s ease';
+        questionEl.style.backgroundColor = 'transparent';
+
+        if (navigator.vibrate) navigator.vibrate([200, 100, 200]);
+
+        // Desbloquear input
+        wordsInput.disabled = false;
+        sendBtn.disabled = false;
+        canSend = true;
+        wordsInput.focus();
+    });
 }
 
 // -------------------- Funciones comunes --------------------
@@ -93,8 +154,14 @@ socket.on('participants', n => {
     if (countEl) countEl.textContent = n;
 });
 
-// Recibir nube de palabras y renderizar
-socket.on('cloud', map => {
+// Recibir número total de palabras enviadas
+socket.on("wordCount", count => {
+    const wordCountEl = $('wordCount');
+    if (wordCountEl) wordCountEl.textContent = count;
+});
+
+// -------------------- Nube de palabras --------------------
+function renderWordCloud(map) {
     const list = Object.entries(map || {}).map(([w, f]) => [w, f]);
     const canvas = $('cloud');
     if (!canvas) return;
@@ -111,7 +178,6 @@ socket.on('cloud', map => {
     ctx.setTransform(1, 0, 0, 1, 0, 0); // Resetear transformaciones
     ctx.scale(dpr, dpr); // Escalado físico
 
-    // Función de colores suaves tipo Mentimeter
     function randomSoftColor() {
         const hue = Math.floor(Math.random() * 360);
         const saturation = Math.floor(Math.random() * 30) + 70;
@@ -123,7 +189,7 @@ socket.on('cloud', map => {
         WordCloud(canvas, {
             list,
             gridSize: Math.round(16 * width / 1024),
-            weightFactor: function (size) {
+            weightFactor: size => {
                 const maxFreq = list.length ? Math.max(...list.map(([_, f]) => f)) : 1;
                 return Math.min(width, height) / 4 * (size / maxFreq);
             },
@@ -136,51 +202,28 @@ socket.on('cloud', map => {
             drawOutOfBound: false,
             shuffle: true,
             ellipticity: 1,
-            origin: [width / 2, height / 2] // ✅ Centrar la nube
+            origin: [width / 2, height / 2]
         });
+        canvas.style.display = 'block';
     } catch (e) {
         console.warn('WordCloud render error', e);
     }
-});
-
-
-// Recibir pregunta
-socket.on("question", q => {
-    const questionEl = $('question');
-    if (questionEl) questionEl.textContent = q;
-    // Aplicar efecto de aviso: fade-in y resaltado
-    questionEl.style.transition = 'none';
-    questionEl.style.backgroundColor = '#ffff99'; // amarillo
-    questionEl.style.padding = '5px';
-    questionEl.style.borderRadius = '4px';
-    questionEl.offsetHeight; // forzar reflow
-    questionEl.style.transition = 'background-color 1s ease';
-    questionEl.style.backgroundColor = 'transparent';
-
-    // Vibrar el móvil si es compatible
-    if (navigator.vibrate) {
-        navigator.vibrate([200, 100, 200]); // vibración breve
-    }
-});
-
-// Recibir número total de palabras enviadas
-socket.on("wordCount", count => {
-    const wordCountEl = $('wordCount');
-    if (wordCountEl) wordCountEl.textContent = count;
-});
-
-// Función para enviar palabras (máx 3)
-function sendWordsFromInput() {
-    if (!currentSession) return alert('No estás en ninguna sesión');
-
-    const inp = $('wordsInput');
-    if (!inp) return;
-    const raw = inp.value.trim();
-    if (!raw) return;
-    const words = raw.split(/\s+/).slice(0, 3);
-    socket.emit('sendWords', words);
-    inp.value = '';
 }
 
-// Manejo de errores de conexión
+// Recibir nube de palabras
+socket.on('cloud', renderWordCloud);
+
+// -------------------- Redimensionamiento automático --------------------
+window.addEventListener('resize', () => {
+    // Re-renderizar nube si ya hay datos
+    if (window.lastCloudData) renderWordCloud(window.lastCloudData);
+});
+
+// Guardar última nube para re-render en resize
+socket.on('cloud', map => {
+    window.lastCloudData = map;
+    renderWordCloud(map);
+});
+
+// -------------------- Manejo de errores de conexión --------------------
 socket.on('connect_error', (err) => console.warn('connect_error', err));
