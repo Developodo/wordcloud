@@ -56,12 +56,23 @@ io.on("connection", (socket) => {
     socket.on("sendWords", (words) => {
         const sessionId = socket.data.sessionId;
         if (!sessionId) return;
+
         const s = sessions[sessionId];
-        words.forEach(w => s.wordMap[w.toLowerCase()] = (s.wordMap[w.toLowerCase()] || 0) + 1);
+        if (!s || !Array.isArray(words)) return; // 🔹 evita errores
+
+        words.forEach(w => {
+            const word = w.toLowerCase();
+            s.wordMap[word] = (s.wordMap[word] || 0) + 1;
+        });
+
+        // Enviar actualización de nube
         io.to(sessionId).emit("cloud", s.wordMap);
+
+        // Enviar total de palabras
         const totalWords = Object.values(s.wordMap).reduce((a, b) => a + b, 0);
         io.to(sessionId).emit("wordCount", totalWords);
     });
+
 
     socket.on("reset", () => {
         const sessionId = socket.data.sessionId;

@@ -109,7 +109,7 @@ if (window.APP_ROLE === 'visitor') {
         if (words.length === 0) return;
 
         // Enviar al servidor
-        socket.emit('sendWords', { session: currentSession, words });
+        socket.emit('sendWords', words);
 
         // Limpiar input y bloquear hasta nueva pregunta
         wordsInput.value = '';
