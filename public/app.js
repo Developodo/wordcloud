@@ -43,14 +43,6 @@ if (window.APP_ROLE === 'organizer') {
         joinSession(sessionId);
     });
 
-    // Reset de la nube
-    $('resetBtn')?.addEventListener('click', () => {
-        if (!currentSession) return alert('Crea una sesión primero');
-        if (!confirm('Resetear la nube?')) return;
-        socket.emit('reset');
-        const el = $('wordCount');
-        if (el) el.textContent = '0';
-    });
 
     // Nueva pregunta
     $('newQuestionBtn')?.addEventListener('click', () => {
