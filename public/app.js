@@ -72,6 +72,7 @@ if (window.APP_ROLE === 'organizer') {
 
 // -------------------- Visitante --------------------
 if (window.APP_ROLE === 'visitor') {
+
     socket.on('connect', () => {
         if (window.FORCED_SESSION) {
             currentSession = window.FORCED_SESSION;
@@ -88,6 +89,12 @@ if (window.APP_ROLE === 'visitor') {
     });
 
     let canSend = true;
+    const sessionKey = `sentWords_${currentSession}`;
+    if (localStorage.getItem(sessionKey)) {
+        canSend = false;
+        wordsInput.disabled = true;
+        sendBtn.disabled = true;
+    }
 
     // Función para normalizar texto: minúsculas y quitar tildes
     function normalizeText(text) {
