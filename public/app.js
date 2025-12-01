@@ -77,6 +77,13 @@ if (window.APP_ROLE === 'visitor') {
         if (window.FORCED_SESSION) {
             currentSession = window.FORCED_SESSION;
             joinSession(currentSession);
+
+            const sessionKey = `sentWords_${currentSession}`;
+            if (localStorage.getItem(sessionKey)) {
+                wordsInput.disabled = true;
+                sendBtn.disabled = true;
+                canSend = false;
+            }
         }
     });
 
@@ -89,7 +96,7 @@ if (window.APP_ROLE === 'visitor') {
     });
 
 
-    const sessionKey = `sentWords_${currentSession}`;
+
     if (localStorage.getItem(sessionKey)) {
         canSend = false;
         wordsInput.disabled = true;
