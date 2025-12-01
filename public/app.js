@@ -98,16 +98,6 @@ if (window.APP_ROLE === 'visitor') {
     });
 
 
-
-    if (currentSession) {
-        const sessionKey = `sentWords_${currentSession}`;
-        if (localStorage.getItem(sessionKey)) {
-            canSend = false;
-            wordsInput.disabled = true;
-            sendBtn.disabled = true;
-        }
-    }
-
     // Función para normalizar texto: minúsculas y quitar tildes
     function normalizeText(text) {
         return text
@@ -143,8 +133,10 @@ if (window.APP_ROLE === 'visitor') {
     // Desbloquear input cuando llegue nueva pregunta
     socket.on("question", q => {
 
-        const sessionKey = `sentWords_${currentSession}`; // ✅ reconstruir clave
-        localStorage.removeItem(sessionKey);
+        if (currentSession) {
+            const sessionKey = `sentWords_${currentSession}`;
+            localStorage.removeItem(sessionKey);
+        }
 
         wordsInput.disabled = false;
         sendBtn.disabled = false;
