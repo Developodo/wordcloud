@@ -9,8 +9,8 @@ const socket = io(BACKEND);
 // Helper
 const $ = (id) => document.getElementById(id);
 
-const url = new URL(location.href);
-let sid = url.searchParams.get('session');
+const url_ = new URL(location.href);
+let sid = url_.searchParams.get('session');
 if (!sid && location.hash) {
     const m = location.hash.match(/session=([^&]+)/);
     if (m) sid = m[1];
@@ -84,31 +84,30 @@ if (window.APP_ROLE === 'organizer') {
 
 // -------------------- Visitante --------------------
 if (window.APP_ROLE === 'visitor' && currentSession) {
+
     let canSend = true;
     const sendBtn = $('sendBtn');
     const wordsInput = $('wordsInput');
+
+    // 🔥 BLOQUEO INMEDIATO — incluso antes de conectar socket
+    const sessionKey = `sentWords_${currentSession}`;
+    if (localStorage.getItem(sessionKey)) {
+        if (wordsInput) wordsInput.disabled = true;
+        if (sendBtn) sendBtn.disabled = true;
+        canSend = false;
+    }
 
     socket.on('connect', () => {
         if (window.FORCED_SESSION) {
             currentSession = window.FORCED_SESSION;
             joinSession(currentSession);
-
-            const sessionKey = `sentWords_${currentSession}`;
-            if (localStorage.getItem(sessionKey)) {
-                wordsInput.disabled = true;
-                sendBtn.disabled = true;
-                canSend = false;
-            }
         }
     });
-
-
 
     if (sendBtn) sendBtn.addEventListener('click', sendWordsFromInput);
     if (wordsInput) wordsInput.addEventListener('keypress', e => {
         if (e.key === 'Enter') sendWordsFromInput();
     });
-
 
     // Función para normalizar texto: minúsculas y quitar tildes
     function normalizeText(text) {
@@ -119,7 +118,7 @@ if (window.APP_ROLE === 'visitor' && currentSession) {
             .trim();
     }
 
-    // Función para enviar palabras/frases (máx 2 palabras como una sola frase)
+    // Función para enviar palabras/frases
     function sendWordsFromInput() {
         if (!canSend) return;
         if (!currentSession) return alert('No estás en ninguna sesión');
@@ -127,12 +126,11 @@ if (window.APP_ROLE === 'visitor' && currentSession) {
         const raw = wordsInput.value.trim();
         if (!raw) return;
 
-        // Separar por espacios, máximo 2 palabras y unir como una sola frase
         const wordsArray = raw.split(/\s+/).slice(0, 2).map(normalizeText);
         if (wordsArray.length === 0) return;
+
         const phrase = wordsArray.join(' ');
 
-        // Enviar al servidor como frase única
         socket.emit('sendWords', [phrase]);
         localStorage.setItem(`sentWords_${currentSession}`, '1');
 
@@ -142,7 +140,7 @@ if (window.APP_ROLE === 'visitor' && currentSession) {
         canSend = false;
     }
 
-    // Desbloquear input cuando llegue nueva pregunta
+    // Desbloqueo al recibir nueva pregunta
     socket.on("question", q => {
 
         if (currentSession) {
@@ -156,25 +154,24 @@ if (window.APP_ROLE === 'visitor' && currentSession) {
         wordsInput.focus();
     });
 }
+
 socket.on("question", q => {
     const questionEl = $('question');
     if (questionEl) questionEl.textContent = q;
 
-    // Efecto fade + escala + resaltado
     questionEl.style.transition = 'none';
     questionEl.style.transform = 'scale(1.2)';
     questionEl.style.backgroundColor = '#fffa65';
     questionEl.style.color = '#1a73e8';
-    questionEl.offsetHeight; // forzar reflow
+    questionEl.offsetHeight;
     questionEl.style.transition = 'all 0.8s ease';
     questionEl.style.transform = 'scale(1)';
     questionEl.style.backgroundColor = 'transparent';
     questionEl.style.color = '#333';
 
     if (navigator.vibrate) navigator.vibrate([300, 100, 300]);
-
-
 });
+
 // -------------------- Funciones comunes --------------------
 function joinSession(sessionId) {
     currentSession = sessionId;
@@ -202,14 +199,13 @@ function renderWordCloud(map) {
     const width = canvas.clientWidth;
     const height = canvas.clientHeight;
 
-    // Ajuste para alta resolución (retina)
     const dpr = window.devicePixelRatio || 1;
     canvas.width = width * dpr;
     canvas.height = height * dpr;
 
     const ctx = canvas.getContext('2d');
-    ctx.setTransform(1, 0, 0, 1, 0, 0); // Resetear transformaciones
-    ctx.scale(dpr, dpr); // Escalado físico
+    ctx.setTransform(1, 0, 0, 1, 0, 0);
+    ctx.scale(dpr, dpr);
 
     function randomSoftColor() {
         const hue = Math.floor(Math.random() * 360);
@@ -243,7 +239,6 @@ function renderWordCloud(map) {
     }
 }
 
-// Recibir nube de palabras
 socket.on('cloud', renderWordCloud);
 
 // -------------------- Redimensionamiento automático --------------------
@@ -251,7 +246,6 @@ window.addEventListener('resize', () => {
     if (window.lastCloudData) renderWordCloud(window.lastCloudData);
 });
 
-// Guardar última nube para re-render en resize
 socket.on('cloud', map => {
     window.lastCloudData = map;
 });
