@@ -59,8 +59,7 @@ io.on("connection", (socket) => {
         const s = sessions[sessionId];
         words.forEach(w => s.wordMap[w.toLowerCase()] = (s.wordMap[w.toLowerCase()] || 0) + 1);
         io.to(sessionId).emit("cloud", s.wordMap);
-        const totalWords = Object.values(s.wordMap).reduce((a, b) => a + b, 0);
-        io.to(sessionId).emit("wordCount", totalWords);
+
     });
 
     socket.on("reset", () => {
