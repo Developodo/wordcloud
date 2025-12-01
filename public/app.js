@@ -160,6 +160,9 @@ if (window.APP_ROLE === 'visitor' && currentSession) {
             if (wordsInput) wordsInput.focus();
             lastQuestion = q;
         }
+        if (lastQuestion == null) {
+            lastQuestion = q;
+        }
     });
 }
 
