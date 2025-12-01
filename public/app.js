@@ -99,10 +99,13 @@ if (window.APP_ROLE === 'visitor') {
 
 
 
-    if (localStorage.getItem(sessionKey)) {
-        canSend = false;
-        wordsInput.disabled = true;
-        sendBtn.disabled = true;
+    if (currentSession) {
+        const sessionKey = `sentWords_${currentSession}`;
+        if (localStorage.getItem(sessionKey)) {
+            canSend = false;
+            wordsInput.disabled = true;
+            sendBtn.disabled = true;
+        }
     }
 
     // Función para normalizar texto: minúsculas y quitar tildes
