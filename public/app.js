@@ -101,6 +101,14 @@ if (window.APP_ROLE === 'visitor' && currentSession) {
         if (window.FORCED_SESSION) {
             currentSession = window.FORCED_SESSION;
             joinSession(currentSession);
+
+            // 🔒 Verificar si ya se envió y bloquear
+            const sessionKey = `sentWords_${currentSession}`;
+            if (localStorage.getItem(sessionKey)) {
+                if (wordsInput) wordsInput.disabled = true;
+                if (sendBtn) sendBtn.disabled = true;
+                canSend = false;
+            }
         }
     });
 
