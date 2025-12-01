@@ -1,0 +1,25 @@
+body {
+    font-family: system-ui, Arial;
+    margin: 0;
+    background: #f7f7fb;
+    color: #111
+}
+
+.card {
+    max-width: 900px;
+    margin: 24px auto;
+    padding: 18px;
+    background: #fff;
+    border-radius: 12px;
+    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.06)
+}
+
+.controls {
+    display: flex;
+    gap: 12px;
+    align-items: center
+}
+
+.hidden {
+    display: none
+}

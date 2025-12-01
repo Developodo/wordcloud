@@ -1,0 +1,50 @@
+<!doctype html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>Organizador — Live Wordcloud</title>
+    <link rel="stylesheet" href="/style.css">
+    <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/wordcloud@1.1.2/src/wordcloud2.js"></script>
+    <script src="https://cdn.jsdelivr.net/gh/davidshimjs/qrcodejs/qrcode.min.js"></script>
+</head>
+
+<body>
+    <main class="card">
+        <h1>Live Wordcloud — Organizador</h1>
+
+
+        <div class="controls">
+            <button id="createBtn">Crear sesión</button>
+            <div id="sessionBox" class="hidden">
+                <p>Session ID: <strong id="sessionId"></strong></p>
+                <div id="qrcode"></div>
+                <p>URL: <code id="sessionUrl"></code></p>
+            </div>
+        </div>
+
+
+        <div class="inputRow" style="display:none">
+            <input id="wordsInput" placeholder="Máx 3 palabras separadas por espacio">
+            <button id="sendBtn">Enviar</button>
+            <button id="resetBtn">Reset</button>
+        </div>
+
+
+        <p>Participantes: <span id="count">0</span></p>
+
+
+        <canvas id="cloud" width="800" height="400"></canvas>
+    </main>
+
+    <script>
+        // Inicia rol organizador
+        window.APP_ROLE = 'organizer';
+    </script>
+    <script src="/app.js"></script>
+
+</body>
+
+</html>
