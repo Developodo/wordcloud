@@ -99,21 +99,23 @@ socket.on('cloud', map => {
     const canvas = $('cloud');
     if (!canvas) return;
 
-    // Alta resolución para pantallas retina
-    const dpr = window.devicePixelRatio || 1;
-    canvas.width = canvas.clientWidth * dpr;
-    canvas.height = canvas.clientHeight * dpr;
-    const ctx = canvas.getContext('2d');
-    ctx.scale(dpr, dpr);
-
     const width = canvas.clientWidth;
     const height = canvas.clientHeight;
 
-    // Función para colores suaves tipo Mentimeter
+    // Ajuste para alta resolución (retina)
+    const dpr = window.devicePixelRatio || 1;
+    canvas.width = width * dpr;
+    canvas.height = height * dpr;
+
+    const ctx = canvas.getContext('2d');
+    ctx.setTransform(1, 0, 0, 1, 0, 0); // Resetear transformaciones
+    ctx.scale(dpr, dpr); // Escalado físico
+
+    // Función de colores suaves tipo Mentimeter
     function randomSoftColor() {
         const hue = Math.floor(Math.random() * 360);
-        const saturation = Math.floor(Math.random() * 30) + 70; // 70-100%
-        const lightness = Math.floor(Math.random() * 30) + 40; // 40-70%
+        const saturation = Math.floor(Math.random() * 30) + 70;
+        const lightness = Math.floor(Math.random() * 30) + 40;
         return `hsl(${hue}, ${saturation}%, ${lightness}%)`;
     }
 
@@ -123,20 +125,18 @@ socket.on('cloud', map => {
             gridSize: Math.round(16 * width / 1024),
             weightFactor: function (size) {
                 const maxFreq = list.length ? Math.max(...list.map(([_, f]) => f)) : 1;
-                // Ajusta tamaño para que la palabra más grande ocupe ~1/4 del canvas
                 return Math.min(width, height) / 4 * (size / maxFreq);
             },
             fontFamily: 'Segoe UI, Roboto, Arial, sans-serif',
             color: () => randomSoftColor(),
-            rotateRatio: 0,        // siempre horizontal
+            rotateRatio: 0,
             rotationSteps: 1,
             rotateAngles: [0],
             backgroundColor: '#ffffff',
             drawOutOfBound: false,
-            // Animación tipo Mentimeter
             shuffle: true,
-            ellipticity: 1,        // círculo perfecto para distribución
-            hover: null
+            ellipticity: 1,
+            origin: [width / 2, height / 2] // ✅ Centrar la nube
         });
     } catch (e) {
         console.warn('WordCloud render error', e);
