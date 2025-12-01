@@ -72,7 +72,7 @@ if (window.APP_ROLE === 'organizer') {
 
 // -------------------- Visitante --------------------
 if (window.APP_ROLE === 'visitor') {
-
+    let canSend = true;
     socket.on('connect', () => {
         if (window.FORCED_SESSION) {
             currentSession = window.FORCED_SESSION;
@@ -88,7 +88,7 @@ if (window.APP_ROLE === 'visitor') {
         if (e.key === 'Enter') sendWordsFromInput();
     });
 
-    let canSend = true;
+
     const sessionKey = `sentWords_${currentSession}`;
     if (localStorage.getItem(sessionKey)) {
         canSend = false;
@@ -120,6 +120,7 @@ if (window.APP_ROLE === 'visitor') {
 
         // Enviar al servidor como frase única
         socket.emit('sendWords', [phrase]);
+        localStorage.setItem(`sentWords_${currentSession}`, '1');
 
         // Limpiar input y bloquear hasta nueva pregunta
         wordsInput.value = '';
@@ -131,7 +132,7 @@ if (window.APP_ROLE === 'visitor') {
     // Desbloquear input cuando llegue nueva pregunta
     socket.on("question", q => {
 
-
+        localStorage.removeItem(`sentWords_${currentSession}`);
         // Desbloquear input
         wordsInput.disabled = false;
         sendBtn.disabled = false;
