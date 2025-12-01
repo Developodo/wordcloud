@@ -32,7 +32,10 @@ if (window.APP_ROLE === 'organizer') {
 
             const url = BACKEND + '/visitor.html#session=' + sessionId;
             const sessionUrlEl = $('sessionUrl');
-            if (sessionUrlEl) sessionUrlEl.textContent = url;
+            if (sessionUrlEl) {
+                sessionUrlEl.href = url;
+                sessionUrlEl.textContent = url;
+            }
 
             // Generar QR
             const qrEl = $('qrcode');
