@@ -13,7 +13,6 @@ let currentSession = null;
 
 // -------------------- Organizador --------------------
 if (window.APP_ROLE === 'organizer') {
-
     const createBtn = $('createBtn');
     if (createBtn) {
         createBtn.addEventListener('click', async () => {
@@ -96,7 +95,7 @@ if (window.APP_ROLE === 'visitor') {
             .trim();
     }
 
-    // Función para enviar palabras (máx 2)
+    // Función para enviar palabras/frases (máx 2 palabras como una sola frase)
     function sendWordsFromInput() {
         if (!canSend) return;
         if (!currentSession) return alert('No estás en ninguna sesión');
@@ -104,12 +103,13 @@ if (window.APP_ROLE === 'visitor') {
         const raw = wordsInput.value.trim();
         if (!raw) return;
 
-        // Separar por espacios, máximo 2 palabras
-        const words = raw.split(/\s+/).slice(0, 2).map(normalizeText);
-        if (words.length === 0) return;
+        // Separar por espacios, máximo 2 palabras y unir como una sola frase
+        const wordsArray = raw.split(/\s+/).slice(0, 2).map(normalizeText);
+        if (wordsArray.length === 0) return;
+        const phrase = wordsArray.join(' ');
 
-        // Enviar al servidor
-        socket.emit('sendWords', words);
+        // Enviar al servidor como frase única
+        socket.emit('sendWords', [phrase]);
 
         // Limpiar input y bloquear hasta nueva pregunta
         wordsInput.value = '';
@@ -123,16 +123,18 @@ if (window.APP_ROLE === 'visitor') {
         const questionEl = $('question');
         if (questionEl) questionEl.textContent = q;
 
-        // Efecto fade-in y resaltado
+        // Efecto fade + escala + resaltado
         questionEl.style.transition = 'none';
-        questionEl.style.backgroundColor = '#ffff99';
-        questionEl.style.padding = '5px';
-        questionEl.style.borderRadius = '4px';
+        questionEl.style.transform = 'scale(1.2)';
+        questionEl.style.backgroundColor = '#fffa65';
+        questionEl.style.color = '#1a73e8';
         questionEl.offsetHeight; // forzar reflow
-        questionEl.style.transition = 'background-color 1s ease';
+        questionEl.style.transition = 'all 0.8s ease';
+        questionEl.style.transform = 'scale(1)';
         questionEl.style.backgroundColor = 'transparent';
+        questionEl.style.color = '#333';
 
-        if (navigator.vibrate) navigator.vibrate([200, 100, 200]);
+        if (navigator.vibrate) navigator.vibrate([300, 100, 300]);
 
         // Desbloquear input
         wordsInput.disabled = false;
@@ -154,7 +156,7 @@ socket.on('participants', n => {
     if (countEl) countEl.textContent = n;
 });
 
-// Recibir número total de palabras enviadas
+// Recibir número total de palabras/frases únicas
 socket.on("wordCount", count => {
     const wordCountEl = $('wordCount');
     if (wordCountEl) wordCountEl.textContent = count;
@@ -215,14 +217,12 @@ socket.on('cloud', renderWordCloud);
 
 // -------------------- Redimensionamiento automático --------------------
 window.addEventListener('resize', () => {
-    // Re-renderizar nube si ya hay datos
     if (window.lastCloudData) renderWordCloud(window.lastCloudData);
 });
 
 // Guardar última nube para re-render en resize
 socket.on('cloud', map => {
     window.lastCloudData = map;
-    renderWordCloud(map);
 });
 
 // -------------------- Manejo de errores de conexión --------------------

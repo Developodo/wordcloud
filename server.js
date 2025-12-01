@@ -53,35 +53,39 @@ io.on("connection", (socket) => {
         socket.emit("question", sessions[sessionId].question);
     });
 
-    socket.on("sendWords", (words) => {
+    // -------------------- Enviar palabras/frases --------------------
+    socket.on("sendWords", (phrases) => {
         const sessionId = socket.data.sessionId;
         if (!sessionId) return;
 
         const s = sessions[sessionId];
-        if (!s || !Array.isArray(words)) return; // 🔹 evita errores
+        if (!s || !Array.isArray(phrases)) return; // 🔹 evita errores
 
-        words.forEach(w => {
-            const word = w.toLowerCase();
-            s.wordMap[word] = (s.wordMap[word] || 0) + 1;
+        phrases.forEach(p => {
+            if (typeof p !== "string" || !p.trim()) return;
+            const phrase = p.toLowerCase().trim(); // 🔹 normalización mínima
+            s.wordMap[phrase] = (s.wordMap[phrase] || 0) + 1;
         });
 
         // Enviar actualización de nube
         io.to(sessionId).emit("cloud", s.wordMap);
 
-        // Enviar total de palabras
-        const totalWords = Object.values(s.wordMap).reduce((a, b) => a + b, 0);
-        io.to(sessionId).emit("wordCount", totalWords);
+        // Contar frases únicas
+        const uniqueCount = Object.keys(s.wordMap).length;
+        io.to(sessionId).emit("wordCount", uniqueCount);
     });
 
-
+    // -------------------- Reset sesión --------------------
     socket.on("reset", () => {
         const sessionId = socket.data.sessionId;
         if (!sessionId) return;
+        if (!sessions[sessionId]) return;
         sessions[sessionId].wordMap = {};
         io.to(sessionId).emit("cloud", {});
         io.to(sessionId).emit("wordCount", 0);
     });
 
+    // -------------------- Desconexión --------------------
     socket.on("disconnect", () => {
         const sessionId = socket.data.sessionId;
         if (!sessionId || !sessions[sessionId]) return;
@@ -90,6 +94,7 @@ io.on("connection", (socket) => {
         if (sessions[sessionId].participants <= 0) delete sessions[sessionId];
     });
 
+    // -------------------- Nueva pregunta --------------------
     socket.on("newQuestion", ({ sessionId, question }) => {
         if (!sessions[sessionId]) return;
 
@@ -104,7 +109,6 @@ io.on("connection", (socket) => {
         io.to(sessionId).emit("question", question);
         io.to(sessionId).emit("wordCount", 0);
     });
-
 
 });
 
