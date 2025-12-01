@@ -23,6 +23,21 @@ if (!sid) {
 window.FORCED_SESSION = sid;
 currentSession = sid; // 🔥 CLAVE: definimos la sesión antes de conectarnos
 
+const blacklist = [
+    'mierda', 'mierdas', 'puta', 'putas', 'coño', 'coños', 'joder', 'jodete', 'gilipollas', 'cabron', 'cabrona', 'cabrones', 'hostia', 'hostias', 'pendejo', 'pendeja', 'idiota', 'imbecil', 'imbeciles', 'culero', 'culeros', 'chingar', 'chingada', 'chinga', 'carajo', 'maricon', 'maricones', 'zorra', 'zorras', 'baboso', 'babosa', 'mamon', 'mamona', 'cojones', 'culi', 'hijodeputa', 'hijueputa', 'polla', 'pollas', 'verga', 'vergas', 'chingon', 'chingona', 'tonto', 'tonta', 'burro', 'burra', 'culiado', 'forro', 'chupapolla', 'mierdoso', 'chingadera', 'gilipollez', 'pendejada', 'malparido', 'malparida', 'cabronazo', 'mariconazo', 'cagada', 'cagado', 'desgraciado', 'desgraciada', 'hijoputa', 'hijueputa', 'pajero', 'pajera', 'culo', 'mamada', 'panocha', 'papaya', 'choto', 'chucha', 'chingapinga', 'chingue', 'chingas', 'chingues', 'pedo', 'pedazo', 'maldito', 'maldita', 'retardado', 'retardada', 'zoquete', 'gandul', 'gandula', 'bastardo', 'bastarda', 'tarado', 'tarada', 'lamemierda', 'cojonudo', 'cojonuda', 'culiao', 'culia', 'mariconada', 'putamadre', 'putaquepario', 'hijodemilputa', 'coñaculo', 'vergon', 'vergonazo', 'trolas', 'pajota', 'imbesil', 'cagandote', 'cagandola', 'culiatros', 'puton', 'putona', 'gilipuertas', 'cojuda', 'cojudas', 'cerdo', 'cerdos', 'cerda', 'cerdas', 'perra', 'perras', 'perro', 'perros', 'zopenca', 'zopencas', 'culona', 'culonas', 'cojida', 'cojidas', 'jodido', 'jodida', 'pajotero', 'pajotera', 'tontito', 'tontita', 'gilipoyas', 'cagón', 'cagona', 'hostias', 'mierdica', 'huevon', 'huevón', 'malparidos', 'malparidas', 'cagando', 'cojudo', 'cojuda', 'cabrone', 'burdel', 'estupido', 'estúpido', 'estúpida', 'idiotas', 'zoquetes', 'chingatumadre', 'pendejoso', 'pendejosa', 'culiatra', 'hijueputamadre', 'coñaculo', 'cojones', 'mierdas', 'putas', 'pendejazo', 'pendejita', 'malparido', 'malparida', 'hijoputa', 'hijueputa', 'cojida', 'cojidas', 'tonto', 'tonta', 'imbecil', 'imbeciles', 'zoquete', 'zoquetes', 'maricon', 'maricona', 'puton', 'putona', 'cagón', 'cagona', 'burdel', 'pajero', 'pajera', 'gilipollas', 'gilipoyas', 'hostia', 'hostias', 'chingar', 'chingada', 'chingas', 'chingue', 'cojudo', 'cojuda', 'culiao', 'culia', 'cabron', 'cabrona', 'cabrones', 'desgraciado', 'desgraciada', 'idiota', 'idiotas', 'retardado', 'retardada', 'lamemierda', 'mierdoso', 'mierdosa', 'maldito', 'maldita', 'papaya', 'pajota', 'imbesil', 'hijodemilputa', 'chingapinga', 'vergon', 'vergonazo', 'panocha', 'mamada', 'choto', 'chucha'
+];
+
+// Función para filtrar palabrotas
+function containsBadWord(text) {
+    const normalized = text
+        .toLowerCase()
+        .normalize('NFD')
+        .replace(/[\u0300-\u036f]/g, '') // quita tildes
+        .replace(/\s+/g, ''); // elimina espacios
+
+    return blacklist.some(word => normalized.includes(word));
+}
+
 // -------------------- Organizador --------------------
 if (window.APP_ROLE === 'organizer') {
     const createBtn = $('createBtn');
@@ -138,6 +153,12 @@ if (window.APP_ROLE === 'visitor' && currentSession) {
         if (wordsArray.length === 0) return;
 
         const phrase = wordsArray.join(' ');
+
+        if (containsBadWord(phrase)) {
+            alert('Tu mensaje contiene palabras no permitidas.');
+            wordsInput.value = '';
+            return;
+        }
 
         socket.emit('sendWords', [phrase]);
         localStorage.setItem(`sentWords_${currentSession}`, '1');
