@@ -96,7 +96,6 @@
             transition: all 0.6s ease;
         }
 
-
         p {
             margin: 8px 0;
             font-size: 1rem;
@@ -129,29 +128,20 @@
         <canvas id="cloud" style="display:none !important"></canvas>
     </main>
 
+    <!-- SOLO ESTO (no duplicamos sid) -->
     <script>
-
         window.APP_ROLE = 'visitor';
-
-        const url = new URL(location.href);
-        let sid = url.searchParams.get('session');
-        if (!sid && location.hash) {
-            const m = location.hash.match(/session=([^&]+)/);
-            if (m) sid = m[1];
-        }
-        if (!sid) {
-            const h = location.hash.split('/');
-            sid = h[h.length - 1];
-        }
-        document.getElementById('sessionId').textContent = sid || 'N/A';
-        window.FORCED_SESSION = sid;
     </script>
 
+    <!-- Cargar socket.io y app.js al final -->
+    <script src="/socket.io/socket.io.js"></script>
+    <script src="/app.js"></script>
 
-
+    <!-- Este script DEBE IR DESPUÉS de app.js -->
     <script>
         // Efecto impresionante de nueva pregunta
         const questionEl = document.getElementById('question');
+
         socket.on('question', q => {
             if (!questionEl) return;
 
@@ -162,19 +152,15 @@
             questionEl.style.transform = 'scale(1.2)';
             questionEl.style.backgroundColor = '#fffa65';
             questionEl.style.color = '#1a73e8';
-            questionEl.offsetHeight; // forzar reflow
+            questionEl.offsetHeight;
             questionEl.style.transition = 'all 0.8s ease';
             questionEl.style.transform = 'scale(1)';
             questionEl.style.backgroundColor = 'transparent';
             questionEl.style.color = '#333';
 
-            // Vibración fuerte si es compatible
             if (navigator.vibrate) navigator.vibrate([300, 100, 300]);
         });
     </script>
-
-    <script src="/socket.io/socket.io.js"></script>
-    <script src="/app.js"></script>
 </body>
 
 </html>
