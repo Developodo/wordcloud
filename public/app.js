@@ -151,7 +151,7 @@ if (window.APP_ROLE === 'visitor' && currentSession) {
     // Desbloqueo al recibir nueva pregunta
     socket.on("question", q => {
 
-        if (q !== lastQuestion) {
+        if (q !== lastQuestion && lastQuestion !== null) {
             // Nueva pregunta distinta, desbloquear
             localStorage.removeItem(sessionKey);
             if (wordsInput) wordsInput.disabled = false;
