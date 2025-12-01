@@ -98,7 +98,24 @@ socket.on('cloud', map => {
     const list = Object.entries(map || {}).map(([w, f]) => [w, f]);
     const canvas = $('cloud');
     if (!canvas) return;
-    const width = canvas.clientWidth || canvas.width;
+
+    // Alta resolución para pantallas retina
+    const dpr = window.devicePixelRatio || 1;
+    canvas.width = canvas.clientWidth * dpr;
+    canvas.height = canvas.clientHeight * dpr;
+    const ctx = canvas.getContext('2d');
+    ctx.scale(dpr, dpr);
+
+    const width = canvas.clientWidth;
+    const height = canvas.clientHeight;
+
+    // Función para colores suaves tipo Mentimeter
+    function randomSoftColor() {
+        const hue = Math.floor(Math.random() * 360);
+        const saturation = Math.floor(Math.random() * 30) + 70; // 70-100%
+        const lightness = Math.floor(Math.random() * 30) + 40; // 40-70%
+        return `hsl(${hue}, ${saturation}%, ${lightness}%)`;
+    }
 
     try {
         WordCloud(canvas, {
@@ -106,20 +123,26 @@ socket.on('cloud', map => {
             gridSize: Math.round(16 * width / 1024),
             weightFactor: function (size) {
                 const maxFreq = list.length ? Math.max(...list.map(([_, f]) => f)) : 1;
-                return width / 20 * (size / maxFreq);
+                // Ajusta tamaño para que la palabra más grande ocupe ~1/4 del canvas
+                return Math.min(width, height) / 4 * (size / maxFreq);
             },
-            fontFamily: 'Segoe UI, Arial',
-            color: 'random-dark',
-            rotateRatio: 0.5,
-            rotationSteps: 2,
-            rotateAngles: [0, 90],
+            fontFamily: 'Segoe UI, Roboto, Arial, sans-serif',
+            color: () => randomSoftColor(),
+            rotateRatio: 0,        // siempre horizontal
+            rotationSteps: 1,
+            rotateAngles: [0],
             backgroundColor: '#ffffff',
-            drawOutOfBound: false
+            drawOutOfBound: false,
+            // Animación tipo Mentimeter
+            shuffle: true,
+            ellipticity: 1,        // círculo perfecto para distribución
+            hover: null
         });
     } catch (e) {
         console.warn('WordCloud render error', e);
     }
 });
+
 
 // Recibir pregunta
 socket.on("question", q => {
