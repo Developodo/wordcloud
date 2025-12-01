@@ -15,21 +15,26 @@ let currentSession = null;
 if (window.APP_ROLE === 'organizer') {
 
     $('createBtn').addEventListener('click', async () => {
-        // Crear sesión en el backend
-        const res = await fetch(BACKEND + '/create-session', { method: 'POST' });
+        // Pedir pregunta al crear la sesión
+        const question = prompt("Introduce la pregunta para esta sesión:");
+        if (!question) return alert("Debes introducir una pregunta");
+
+        const res = await fetch(BACKEND + '/create-session', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ question })
+        });
         const { sessionId } = await res.json();
         currentSession = sessionId;
 
-        // Mostrar sessionId
         $('sessionId').textContent = sessionId;
 
-        // Generar URL visitante
         const url = BACKEND + '/visitor.html#session=' + sessionId;
         $('sessionUrl').textContent = url;
 
         // Generar QR
         document.getElementById('qrcode').innerHTML = '';
-        new QRCode(document.getElementById('qrcode'), { text: url, width: 160, height: 160 });
+        new QRCode(document.getElementById('qrcode'), { text: url, width: 240, height: 240 });
 
         $('sessionBox').classList.remove('hidden');
 
@@ -83,14 +88,16 @@ socket.on('cloud', map => {
     try {
         WordCloud(canvas, {
             list,
-            gridSize: Math.round(16 * width / 1024), // ajusta densidad
+            gridSize: Math.round(16 * width / 1024),   // densidad y cuadrícula
             weightFactor: function (size) {
                 const maxFreq = list.length ? Math.max(...list.map(([_, f]) => f)) : 1;
                 return width / 20 * (size / maxFreq);
             },
             fontFamily: 'Segoe UI, Arial',
             color: 'random-dark',
-            rotateRatio: 0.25,
+            rotateRatio: 0.5,          // 50% horizontal / 50% vertical
+            rotationSteps: 2,          // solo 2 pasos (0° o 90°)
+            rotateAngles: [0, 90],     // asegura solo horizontal o vertical
             backgroundColor: '#ffffff',
             drawOutOfBound: false
         });
@@ -99,6 +106,10 @@ socket.on('cloud', map => {
     }
 });
 
+socket.on("question", q => {
+    const el = document.getElementById('question');
+    if (el) el.textContent = q;
+});
 
 
 // Función para enviar palabras

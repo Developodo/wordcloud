@@ -25,7 +25,8 @@ function createSessionId() {
 // Crear sesión (API)
 app.post("/create-session", (req, res) => {
     const id = createSessionId();
-    sessions[id] = { wordMap: {}, participants: 0 };
+    const question = req.body.question || "";
+    sessions[id] = { wordMap: {}, participants: 0, question };
     res.json({ sessionId: id });
 });
 
@@ -41,12 +42,15 @@ const io = new Server(httpServer, { cors: { origin: "*" } });
 io.on("connection", (socket) => {
 
     socket.on("joinSession", (sessionId) => {
-        if (!sessions[sessionId]) sessions[sessionId] = { wordMap: {}, participants: 0 };
+        if (!sessions[sessionId]) sessions[sessionId] = { wordMap: {}, participants: 0, question: "" };
         socket.join(sessionId);
         socket.data.sessionId = sessionId;
         sessions[sessionId].participants++;
         io.to(sessionId).emit("participants", sessions[sessionId].participants);
         io.to(sessionId).emit("cloud", sessions[sessionId].wordMap);
+
+        // enviar pregunta solo al visitante que se une
+        socket.emit("question", sessions[sessionId].question);
     });
 
     socket.on("sendWords", (words) => {
