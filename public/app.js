@@ -139,8 +139,8 @@ if (window.APP_ROLE === 'visitor') {
     // Desbloquear input cuando llegue nueva pregunta
     socket.on("question", q => {
 
-        localStorage.removeItem(`sentWords_${currentSession}`);
-        // Desbloquear input
+        if (currentSession) localStorage.removeItem(`sentWords_${currentSession}`);
+
         wordsInput.disabled = false;
         sendBtn.disabled = false;
         canSend = true;
