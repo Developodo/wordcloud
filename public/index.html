@@ -34,6 +34,7 @@
 
         .controls {
             margin-bottom: 20px;
+            justify-content: center !important;
         }
 
         button {
@@ -91,15 +92,15 @@
         <h1>Live Wordcloud — Organizador</h1>
 
         <div class="controls">
-            <button id="createBtn">Crear sesión</button>
+            <button id="createBtn">Crear nube</button>
             <div id="sessionBox" class="hidden">
-                <p>Session ID: <strong id="sessionId"></strong></p>
+                <p style="display: none">Session ID: <strong id="sessionId"></strong></p>
                 <div id="qrcode"></div>
             </div>
             <button id="newQuestionBtn">Nueva pregunta</button>
         </div>
         <p>URL: <code id="sessionUrl"></code></p>
-        <p>Pregunta actual: <span id="question">N/A</span></p>
+        <p style="font-weight: bold;">Pregunta actual: <span id="question">N/A</span></p>
         <p>Participantes: <span id="count">0</span> | Palabras enviadas: <span id="wordCount">0</span></p>
 
         <canvas id="cloud" width="800" height="600"></canvas>
