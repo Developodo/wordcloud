@@ -14,8 +14,7 @@ let currentSession = null;
 // -------------------- Organizador --------------------
 if (window.APP_ROLE === 'organizer') {
 
-    $('createBtn').addEventListener('click', async () => {
-        // Pedir pregunta al crear la sesión
+    $('createBtn')?.addEventListener('click', async () => {
         const question = prompt("Introduce la pregunta para esta sesión:");
         if (!question) return alert("Debes introducir una pregunta");
 
@@ -27,45 +26,41 @@ if (window.APP_ROLE === 'organizer') {
         const { sessionId } = await res.json();
         currentSession = sessionId;
 
-        $('sessionId').textContent = sessionId;
-
+        $('sessionId')?.textContent = sessionId;
         const url = BACKEND + '/visitor.html#session=' + sessionId;
-        $('sessionUrl').textContent = url;
+        $('sessionUrl')?.textContent = url;
 
         // Generar QR
-        document.getElementById('qrcode').innerHTML = '';
-        new QRCode(document.getElementById('qrcode'), { text: url, width: 240, height: 240 });
+        const qrEl = $('qrcode');
+        if (qrEl) {
+            qrEl.innerHTML = '';
+            new QRCode(qrEl, { text: url, width: 240, height: 240 });
+        }
 
-        $('sessionBox').classList.remove('hidden');
+        $('sessionBox')?.classList.remove('hidden');
+        $('newQuestionBtn')?.style.setProperty('display', 'inline-block');
 
-        // Mostrar botón Nueva pregunta
-        $('newQuestionBtn').style.display = 'inline-block';
-
-        // El organizador se une a la sala
         joinSession(sessionId);
     });
 
     // Reset de la nube
-    $('resetBtn').addEventListener('click', () => {
+    $('resetBtn')?.addEventListener('click', () => {
         if (!currentSession) return alert('Crea una sesión primero');
         if (!confirm('Resetear la nube?')) return;
         socket.emit('reset');
-        // reset contador de palabras
         const el = $('wordCount');
         if (el) el.textContent = '0';
     });
 
     // Nueva pregunta
-    $('newQuestionBtn').addEventListener('click', () => {
+    $('newQuestionBtn')?.addEventListener('click', () => {
         if (!currentSession) return alert("Crea primero una sesión");
 
         const question = prompt("Introduce la nueva pregunta:");
         if (!question) return;
 
-        // Emitir al servidor que hay nueva pregunta y reset de nube
         socket.emit("newQuestion", { sessionId: currentSession, question });
 
-        // Reset contador de palabras localmente
         const el = $('wordCount');
         if (el) el.textContent = '0';
     });
@@ -98,23 +93,23 @@ socket.on('participants', n => {
 // Recibir nube de palabras y renderizar
 socket.on('cloud', map => {
     const list = Object.entries(map || {}).map(([w, f]) => [w, f]);
-    const canvas = document.getElementById('cloud');
+    const canvas = $('cloud');
     if (!canvas) return;
     const width = canvas.clientWidth || canvas.width;
 
     try {
         WordCloud(canvas, {
             list,
-            gridSize: Math.round(16 * width / 1024),   // densidad y cuadrícula
+            gridSize: Math.round(16 * width / 1024),
             weightFactor: function (size) {
                 const maxFreq = list.length ? Math.max(...list.map(([_, f]) => f)) : 1;
                 return width / 20 * (size / maxFreq);
             },
             fontFamily: 'Segoe UI, Arial',
             color: 'random-dark',
-            rotateRatio: 0.5,          // 50% horizontal / 50% vertical
-            rotationSteps: 2,          // solo 2 pasos (0° o 90°)
-            rotateAngles: [0, 90],     // asegura solo horizontal o vertical
+            rotateRatio: 0.5,
+            rotationSteps: 2,
+            rotateAngles: [0, 90],
             backgroundColor: '#ffffff',
             drawOutOfBound: false
         });
