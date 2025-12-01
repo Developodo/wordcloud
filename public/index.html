@@ -82,10 +82,55 @@
         }
 
         #currentQuestion {
-            font-size: 1.2em;
             font-weight: bold;
             margin: 15px 0;
-            color: #333;
+        }
+
+        .help-icon {
+            display: inline-block;
+            margin-left: 8px;
+            color: #1a73e8;
+            cursor: pointer;
+            font-weight: bold;
+            border-radius: 50%;
+            width: 24px;
+            height: 24px;
+            line-height: 24px;
+            text-align: center;
+            background: #e0f0ff;
+            transition: background 0.2s;
+        }
+
+        .help-icon:hover {
+            background: #cce0ff;
+        }
+
+        .tooltip {
+            display: none;
+            position: absolute;
+            top: 60px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #1a73e8;
+            color: #fff;
+            padding: 15px;
+            border-radius: 8px;
+            max-width: 400px;
+            font-size: 0.95rem;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+            z-index: 1000;
+            line-height: 1.4;
+        }
+
+        .tooltip::after {
+            content: '';
+            position: absolute;
+            top: -8px;
+            left: 50%;
+            transform: translateX(-50%);
+            border-width: 8px;
+            border-style: solid;
+            border-color: transparent transparent #1a73e8 transparent;
         }
     </style>
 </head>
@@ -94,8 +139,15 @@
     <main class="card">
         <div style="text-align: center;">
             <img src="/logo.png" alt="Logo" style="width: 50%; max-width: 100%; height: auto; max-width: 300px;">
+            <span class="help-icon" id="helpIcon">?</span>
         </div>
-
+        <div class="tooltip" id="tooltip">
+            Nueva nube para crear un nuevo QR y conectar usuarios asociados a una pregunta o enunciado.
+            Una vez conectados los usuarios, no debe refrescar más. Puedes ir añadiendo nuevas preguntas sin necesidad
+            de crear nuevas nubes.
+            El usuario solo puede añadir una palabra por cada pregunta, con máximo un espacio y longitud de 50
+            caracteres.
+        </div>
         <div class="controls">
             <button id="createBtn">Crear nube</button>
             <div id="sessionBox" class="hidden">
@@ -117,7 +169,25 @@
             </a>
         </footer>
     </main>
+    <script>
+        const helpIcon = document.getElementById('helpIcon');
+        const tooltip = document.getElementById('tooltip');
 
+        helpIcon.addEventListener('click', () => {
+            if (tooltip.style.display === 'block') {
+                tooltip.style.display = 'none';
+            } else {
+                tooltip.style.display = 'block';
+            }
+        });
+
+        // Cerrar tooltip al hacer clic fuera
+        document.addEventListener('click', (e) => {
+            if (!helpIcon.contains(e.target) && !tooltip.contains(e.target)) {
+                tooltip.style.display = 'none';
+            }
+        });
+    </script>
 
     <script>
         window.APP_ROLE = 'organizer';

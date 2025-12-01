@@ -199,7 +199,6 @@ socket.on("question", q => {
     questionEl.style.transition = 'all 0.8s ease';
     questionEl.style.transform = 'scale(1)';
     questionEl.style.backgroundColor = 'transparent';
-    questionEl.style.color = '#333';
 
     if (navigator.vibrate) navigator.vibrate([300, 100, 300]);
 });
