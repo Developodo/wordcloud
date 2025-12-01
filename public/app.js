@@ -125,6 +125,19 @@ socket.on('cloud', map => {
 socket.on("question", q => {
     const questionEl = $('question');
     if (questionEl) questionEl.textContent = q;
+    // Aplicar efecto de aviso: fade-in y resaltado
+    questionEl.style.transition = 'none';
+    questionEl.style.backgroundColor = '#ffff99'; // amarillo
+    questionEl.style.padding = '5px';
+    questionEl.style.borderRadius = '4px';
+    questionEl.offsetHeight; // forzar reflow
+    questionEl.style.transition = 'background-color 1s ease';
+    questionEl.style.backgroundColor = 'transparent';
+
+    // Vibrar el móvil si es compatible
+    if (navigator.vibrate) {
+        navigator.vibrate([200, 100, 200]); // vibración breve
+    }
 });
 
 // Recibir número total de palabras enviadas

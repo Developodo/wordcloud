@@ -59,7 +59,8 @@ io.on("connection", (socket) => {
         const s = sessions[sessionId];
         words.forEach(w => s.wordMap[w.toLowerCase()] = (s.wordMap[w.toLowerCase()] || 0) + 1);
         io.to(sessionId).emit("cloud", s.wordMap);
-
+        const totalWords = Object.values(s.wordMap).reduce((a, b) => a + b, 0);
+        io.to(sessionId).emit("wordCount", totalWords);
     });
 
     socket.on("reset", () => {
@@ -67,6 +68,7 @@ io.on("connection", (socket) => {
         if (!sessionId) return;
         sessions[sessionId].wordMap = {};
         io.to(sessionId).emit("cloud", {});
+        io.to(sessionId).emit("wordCount", 0);
     });
 
     socket.on("disconnect", () => {
@@ -89,6 +91,7 @@ io.on("connection", (socket) => {
         // Enviar nueva nube vacía y pregunta a todos en la sesión
         io.to(sessionId).emit("cloud", sessions[sessionId].wordMap);
         io.to(sessionId).emit("question", question);
+        io.to(sessionId).emit("wordCount", 0);
     });
 
 
