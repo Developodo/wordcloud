@@ -96,7 +96,7 @@ if (window.APP_ROLE === 'visitor' && currentSession) {
         if (sendBtn) sendBtn.disabled = true;
         canSend = false;
     }
-
+    let lastQuestion = null; // para controlar nuevas preguntas
     socket.on('connect', () => {
         if (window.FORCED_SESSION) {
             currentSession = window.FORCED_SESSION;
@@ -151,14 +151,14 @@ if (window.APP_ROLE === 'visitor' && currentSession) {
     // Desbloqueo al recibir nueva pregunta
     socket.on("question", q => {
 
-        const sessionKey = `sentWords_${currentSession}`;
-
-        // 🔒 Solo desbloquear si NO se ha enviado
-        if (!localStorage.getItem(sessionKey)) {
+        if (q !== lastQuestion) {
+            // Nueva pregunta distinta, desbloquear
+            localStorage.removeItem(sessionKey);
             if (wordsInput) wordsInput.disabled = false;
             if (sendBtn) sendBtn.disabled = false;
             canSend = true;
             if (wordsInput) wordsInput.focus();
+            lastQuestion = q;
         }
     });
 }
