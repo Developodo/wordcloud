@@ -120,21 +120,7 @@ if (window.APP_ROLE === 'visitor') {
 
     // Desbloquear input cuando llegue nueva pregunta
     socket.on("question", q => {
-        const questionEl = $('question');
-        if (questionEl) questionEl.textContent = q;
 
-        // Efecto fade + escala + resaltado
-        questionEl.style.transition = 'none';
-        questionEl.style.transform = 'scale(1.2)';
-        questionEl.style.backgroundColor = '#fffa65';
-        questionEl.style.color = '#1a73e8';
-        questionEl.offsetHeight; // forzar reflow
-        questionEl.style.transition = 'all 0.8s ease';
-        questionEl.style.transform = 'scale(1)';
-        questionEl.style.backgroundColor = 'transparent';
-        questionEl.style.color = '#333';
-
-        if (navigator.vibrate) navigator.vibrate([300, 100, 300]);
 
         // Desbloquear input
         wordsInput.disabled = false;
@@ -143,7 +129,25 @@ if (window.APP_ROLE === 'visitor') {
         wordsInput.focus();
     });
 }
+socket.on("question", q => {
+    const questionEl = $('question');
+    if (questionEl) questionEl.textContent = q;
 
+    // Efecto fade + escala + resaltado
+    questionEl.style.transition = 'none';
+    questionEl.style.transform = 'scale(1.2)';
+    questionEl.style.backgroundColor = '#fffa65';
+    questionEl.style.color = '#1a73e8';
+    questionEl.offsetHeight; // forzar reflow
+    questionEl.style.transition = 'all 0.8s ease';
+    questionEl.style.transform = 'scale(1)';
+    questionEl.style.backgroundColor = 'transparent';
+    questionEl.style.color = '#333';
+
+    if (navigator.vibrate) navigator.vibrate([300, 100, 300]);
+
+
+});
 // -------------------- Funciones comunes --------------------
 function joinSession(sessionId) {
     currentSession = sessionId;
