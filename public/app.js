@@ -76,11 +76,25 @@ socket.on('participants', n => {
 socket.on('cloud', map => {
     const list = Object.entries(map || {}).map(([w, f]) => [w, f]);
     try {
-        WordCloud(document.getElementById('cloud'), { list, rotateRatio: 0.25, weightFactor: 10 });
+        WordCloud(document.getElementById('cloud'), {
+            list,
+            gridSize: Math.round(16 * $('#cloud').width() / 1024), // ajusta densidad
+            weightFactor: function (size) {
+                // calcula peso relativo según frecuencia y número de palabras
+                const maxFreq = list.length ? Math.max(...list.map(([_, f]) => f)) : 1;
+                return $('#cloud').width() / 20 * (size / maxFreq);
+            },
+            fontFamily: 'Segoe UI, Arial',
+            color: 'random-dark',
+            rotateRatio: 0.25,
+            backgroundColor: '#ffffff',
+            drawOutOfBound: false
+        });
     } catch (e) {
         console.warn('WordCloud render error', e);
     }
 });
+
 
 // Función para enviar palabras
 function sendWordsFromInput() {

@@ -23,3 +23,24 @@ body {
 .hidden {
     display: none
 }
+
+#qrcode {
+    display: block;
+    margin: 20px auto;
+    width: 240px;
+    height: 240px;
+}
+
+#cloud {
+    width: 100%;
+    max-width: 1200px;
+    height: 600px;
+    margin: 0 auto;
+    display: block;
+}
+
+main.card {
+    max-width: 1200px;
+    margin: 0 auto;
+    text-align: center;
+}
