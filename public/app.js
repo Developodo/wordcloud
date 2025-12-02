@@ -26,7 +26,7 @@ function joinSession(sessionId) {
 
 socket.on('participants', n => {
     const countEl = $('count');
-    if (countEl) countEl.textContent = n;
+    if (countEl) countEl.textContent = n - 1;
 });
 
 socket.on("wordCount", count => {
