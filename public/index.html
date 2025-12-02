@@ -254,20 +254,23 @@
         /* PANEL QR DESPLEGABLE */
         const qrPanel = document.getElementById('qrPanel');
         const toggleQR = document.getElementById('toggleQR');
+        const canvas = document.getElementById('cloud');
 
         toggleQR.addEventListener('click', () => {
-            qrPanel.classList.toggle('open');
-            toggleQR.textContent = qrPanel.classList.contains('open') ? "⮜" : "⮞";
+            const isOpen = qrPanel.classList.toggle('open');
+            toggleQR.textContent = isOpen ? "⮜" : "⮞";
 
-            if (window.lastCloudData) {
-                setTimeout(() => renderWordCloud(window.lastCloudData), 350);
-            }
+            // Forzar redibujo del canvas después de la transición
+            setTimeout(() => {
+                if (window.lastCloudData) renderWordCloud(window.lastCloudData);
+            }, 360);
         });
 
         document.addEventListener("qr-loaded", () => {
             qrPanel.classList.add("open");
             toggleQR.textContent = "⮜";
         });
+
 
         window.APP_ROLE = 'organizer';
     </script>
