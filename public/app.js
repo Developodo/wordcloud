@@ -11,7 +11,42 @@ let sid = url_.searchParams.get('session') || (location.hash.match(/session=([^&
 window.FORCED_SESSION = sid;
 currentSession = sid;
 
-const blacklist = [/* ... tu lista completa ... */];
+const blacklist = [
+    "puta", "putas", "puto", "putos", "zorra", "zorras", "zorro", "zorros", "gilipollas", "gilipollas", "imbécil", "imbéciles", "idiota", "idiotas",
+    "tonto", "tontos", "tonta", "tontas", "cabron", "cabrones", "cabrona", "cabronas", "cabrón", "cabrones", "cabrona", "cabronas", "coño", "coños",
+    "mierda", "mierdas", "caca", "cacas", "pedo", "pedos", "pajero", "pajeros", "pajera", "pajeras", "chupapolla", "chupapollas", "verga", "vergas",
+    "polla", "pollas", "pene", "penes", "culo", "culos", "cagón", "cagones", "cagona", "cagonas", "tarado", "tarados", "tarada", "taradas", "maricón",
+    "maricones", "maricona", "mariconas", "bastardo", "bastardos", "bastarda", "bastardas", "maldito", "malditos", "maldita", "malditas", "imbécil",
+    "imbéciles", "idiota", "idiotas", "tonto", "tontos", "tonta", "tontas", "gilipollas", "gilipollas", "cerdo", "cerdos", "cerda", "cerdas", "mamón",
+    "mamones", "mamona", "mamonas", "pajilla", "pajillas", "cojones", "cojón", "cojonazo", "cojonazos", "cojonera", "cojoneras", "pajero", "pajeros",
+    "pajera", "pajeras", "zopenco", "zopencos", "zopenca", "zopencas", "memo", "memos", "mema", "memas", "trol", "troles", "trola", "trolas", "idiota",
+    "idiotas", "imbécil", "imbéciles", "gilipollas", "gilipollas", "tarado", "tarados", "tarada", "taradas", "cabronazo", "cabronazos", "cabroncillo",
+    "cabroncillos", "mierdoso", "mierdosos", "mierdosa", "mierdosas", "cagada", "cagadas", "cagón", "cagones", "cagona", "cagonas", "mierdecilla",
+    "mierdecillas", "gilipollez", "gilipolleces", "tonto", "tontos", "tonta", "tontas", "zafio", "zafios", "zafia", "zafias", "bruto", "brutos", "bruta",
+    "brutas", "imbécil", "imbéciles", "idiota", "idiotas", "cretino", "cretinos", "cretina", "cretinas", "estúpido", "estúpidos", "estúpida", "estúpidas",
+    "subnormal", "subnormales", "gili", "gilis", "cabrón", "cabrones", "cabrona", "cabronas", "manco", "mancos", "manca", "mancas", "tonto", "tontos", "tonta",
+    "tontas", "zoquete", "zoquetes", "zoqueta", "zoquetas", "patán", "patanes", "patana", "patanas", "zángano", "zánganos", "zángana", "zánganas", "baboso",
+    "babosos", "babosa", "babosas", "tonto", "tontos", "tonta", "tontas", "gilipollas", "gilipollas", "imbécil", "imbéciles", "idiota", "idiotas", "cretino",
+    "cretinos", "cretina", "cretinas", "tarado", "tarados", "tarada", "taradas", "estúpido", "estúpidos", "estúpida", "estúpidas", "gilipollas", "gilipollas",
+    "mierda", "mierdas", "caca", "cacas", "pedazo", "pedazos", "culo", "culos", "coño", "coños", "pene", "penes", "polla", "pollas", "verga", "vergas", "mamón",
+    "mamones", "mamona", "mamonas", "zorra", "zorras", "zorro", "zorros", "cabron", "cabrones", "cabrona", "cabronas", "idiota", "idiotas", "imbécil", "imbéciles",
+    "pajero", "pajeros", "pajera", "pajeras", "maricón", "maricones", "maricona", "mariconas", "bastardo", "bastardos", "bastarda", "bastardas", "maldito",
+    "malditos", "maldita", "malditas", "cerdo", "cerdos", "cerda", "cerdas", "baboso", "babosos", "babosa", "babosas", "tarado", "tarados", "tarada", "taradas",
+    "memo", "memos", "mema", "memas", "trol", "troles", "trola", "trolas", "zoquete", "zoquetes", "zoqueta", "zoquetas", "subnormal", "subnormales", "cretino",
+    "cretinos", "cretina", "cretinas", "zafio", "zafios", "zafia", "zafias", "patán", "patanes", "patana", "patanas", "imbécil", "imbéciles", "idiota", "idiotas",
+    "gilipollas", "gilipollas", "tonto", "tontos", "tonta", "tontas", "estúpido", "estúpidos", "estúpida", "estúpidas", "cabronazo", "cabronazos", "cabroncillo",
+    "cabroncillos", "mierdoso", "mierdosos", "mierdosa", "mierdosas", "cagón", "cagones", "cagona", "cagonas", "mierdecilla", "mierdecillas", "gilipollez",
+    "gilipolleces", "zángano", "zánganos", "zángana", "zánganas", "zoquete", "zoquetes", "zoqueta", "zoquetas", "tonto", "tontos", "tonta", "tontas", "bruto",
+    "brutos", "bruta", "brutas", "manco", "mancos", "manca", "mancas", "idiota", "idiotas", "cretino", "cretinos", "cretina", "cretinas", "tarado", "tarados",
+    "tarada", "taradas", "cabroncillo", "cabroncillos", "baboso", "babosos", "babosa", "babosas", "tonto", "tontos", "tonta", "tontas", "gilipollas", "gilipollas",
+    "imbécil", "imbéciles", "idiota", "idiotas", "mierda", "mierdas", "caca", "cacas", "pedo", "pedos", "pene", "penes", "polla", "pollas", "verga", "vergas",
+    "coño", "coños", "culo", "culos", "mamón", "mamones", "mamona", "mamonas", "zorra", "zorras", "zorro", "zorros", "cabron", "cabrones", "cabrona", "cabronas",
+    "maldito", "malditos", "maldita", "malditas", "bastardo", "bastardos", "bastarda", "bastardas", "pajero", "pajeros", "pajera", "pajeras", "maricón", "maricones",
+    "maricona", "mariconas", "cretino", "cretinos", "cretina", "cretinas", "imbécil", "imbéciles", "idiota", "idiotas", "gilipollas", "gilipollas", "tonto", "tontos",
+    "tonta", "tontas", "cabronazo", "cabronazos", "cabroncillo", "cabroncillos", "mierdoso", "mierdosos", "mierdosa", "mierdosas", "cagón", "cagones", "cagona", "cagonas",
+    "mierdecilla", "mierdecillas", "gilipollez", "gilipolleces", "zángano", "zánganos", "zángana", "zánganas", "zoquete", "zoquetes", "zoqueta", "zoquetas"
+];
+
 
 function containsBadWord(text) {
     const normalized = text.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/\s+/g, '');
@@ -99,26 +134,42 @@ function renderWordCloud(map) {
     }
 }
 
+// Comparar nubes para no repintar si no hay cambios
+function isCloudEqual(a, b) {
+    const ka = Object.keys(a || {});
+    const kb = Object.keys(b || {});
+    if (ka.length !== kb.length) return false;
+    for (const key of ka) {
+        if (!b.hasOwnProperty(key) || a[key] !== b[key]) return false;
+    }
+    return true;
+}
+
 socket.on('cloud', map => {
-    window.lastCloudData = map;
-    const canvas = $('cloud');
-    if (!canvas) return;
+    if (!window.lastCloudData || !isCloudEqual(window.lastCloudData, map)) {
+        window.lastCloudData = map;
+        const canvas = $('cloud');
+        if (!canvas) return;
 
-    canvas.style.transition = 'none';
-    canvas.style.opacity = '0';
-    canvas.style.transform = 'scale(0.9)';
-    canvas.offsetHeight;
+        canvas.style.transition = 'none';
+        canvas.style.opacity = '0';
+        canvas.style.transform = 'scale(0.9)';
+        canvas.offsetHeight;
 
-    canvas.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
-    canvas.style.opacity = '1';
-    canvas.style.transform = 'scale(1)';
+        canvas.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
+        canvas.style.opacity = '1';
+        canvas.style.transform = 'scale(1)';
 
-    renderWordCloud(map);
+        renderWordCloud(map);
+    }
 });
 
-window.addEventListener('resize', () => {
+// Redimensionar automáticamente
+function updateCanvasSize() {
     if (window.lastCloudData) renderWordCloud(window.lastCloudData);
-});
+}
+
+window.addEventListener('resize', updateCanvasSize);
 
 socket.on('connect_error', (err) => console.warn('connect_error', err));
 
@@ -211,9 +262,9 @@ if (window.APP_ROLE === 'visitor' && currentSession) {
         localStorage.setItem(`sentWords_${currentSession}`, '1');
 
         wordsInput.value = '';
-        /* wordsInput.disabled = true;
-         sendBtn.disabled = true;
-         canSend = false;*/
+        wordsInput.disabled = true;
+        sendBtn.disabled = true;
+        canSend = false;
     }
 
     sendBtn?.addEventListener('click', sendWordsFromInput);
@@ -232,4 +283,4 @@ if (window.APP_ROLE === 'visitor' && currentSession) {
     });
 }
 
-// -------------------- Panel QR desplegable (solo una declaración) --------------------
+
