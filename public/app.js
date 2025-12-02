@@ -179,9 +179,9 @@ if (window.APP_ROLE === 'visitor' && currentSession) {
     let lastQuestion = null;
 
     if (localStorage.getItem(sessionKey)) {
-        // wordsInput && (wordsInput.disabled = true);
-        // sendBtn && (sendBtn.disabled = true);
-        // canSend = false;
+        wordsInput && (wordsInput.disabled = true);
+        sendBtn && (sendBtn.disabled = true);
+        canSend = false;
     }
 
     socket.on('connect', () => {
@@ -211,9 +211,9 @@ if (window.APP_ROLE === 'visitor' && currentSession) {
         localStorage.setItem(`sentWords_${currentSession}`, '1');
 
         wordsInput.value = '';
-        wordsInput.disabled = true;
-        sendBtn.disabled = true;
-        canSend = false;
+        /* wordsInput.disabled = true;
+         sendBtn.disabled = true;
+         canSend = false;*/
     }
 
     sendBtn?.addEventListener('click', sendWordsFromInput);
