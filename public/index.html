@@ -256,19 +256,23 @@
         const toggleQR = document.getElementById('toggleQR');
         const canvas = document.getElementById('cloud');
 
+        // Función que ajusta el canvas cuando se abre/cierra el panel QR
+        function updateCanvasSize() {
+            if (window.lastCloudData) renderWordCloud(window.lastCloudData);
+        }
+
+        // Toggle del panel QR
         toggleQR.addEventListener('click', () => {
             const isOpen = qrPanel.classList.toggle('open');
             toggleQR.textContent = isOpen ? "⮜" : "⮞";
-
-            // Forzar redibujo del canvas después de la transición
-            setTimeout(() => {
-                if (window.lastCloudData) renderWordCloud(window.lastCloudData);
-            }, 360);
+            setTimeout(updateCanvasSize, 360); // esperar transición CSS
         });
 
+        // Evento que se dispara cuando se genera un QR (crear sesión o nueva pregunta)
         document.addEventListener("qr-loaded", () => {
             qrPanel.classList.add("open");
             toggleQR.textContent = "⮜";
+            updateCanvasSize();
         });
 
 
