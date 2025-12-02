@@ -138,7 +138,7 @@
         }
 
         .qr-panel.open {
-            flex: 0 0 30%;
+            flex: 0 0 260px;
             max-width: 260px;
         }
 
@@ -226,7 +226,7 @@
                 <div id="qrcode"></div>
             </aside>
 
-            <button id="toggleQR" class="toggle-btn">⯈</button>
+            <button id="toggleQR" class="toggle-btn">></button>
         </div>
 
         <footer style="text-align: center; padding: 15px 0; font-size: 0.9rem; color: #666;">
@@ -267,10 +267,10 @@
         function setQR(open) {
             if (open) {
                 qrPanel.classList.add('open');
-                toggleQR.textContent = '⯇';
+                toggleQR.textContent = '<';
             } else {
                 qrPanel.classList.remove('open');
-                toggleQR.textContent = '⯈';
+                toggleQR.textContent = '>';
             }
             setTimeout(resizeCloud, 360); // esperar la transición
         }
