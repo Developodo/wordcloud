@@ -145,7 +145,7 @@
             Nueva nube para crear un nuevo QR y conectar usuarios asociados a una pregunta o enunciado.
             Una vez conectados los usuarios, no debe refrescar más. Puedes ir añadiendo nuevas preguntas sin necesidad
             de crear nuevas nubes.
-            El usuario solo puede añadir una palabra por cada pregunta, con máximo un espacio y longitud de 50
+            El usuario solo puede añadir una palabra por cada pregunta, con máximo un espacio y longitud de 25
             caracteres.
         </div>
         <div class="controls">
@@ -158,8 +158,26 @@
         </div>
         <p>URL: <a id="sessionUrl"></a></p>
         <h1 style="font-weight: bold;">Pregunta actual: <span id="question">N/A</span></h1>
-        <p>Participantes: <span id="count">0</span> | Palabras enviadas: <span id="wordCount">0</span></p>
+        <p style="display:flex; gap:20px; align-items:center; font-size:18px">
 
+            <!-- Icono persona -->
+            <span style="display:flex; align-items:center; gap:6px">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                    <path
+                        d="M12 12c2.7 0 5-2.3 5-5s-2.3-5-5-5-5 2.3-5 5 2.3 5 5 5zm0 2c-3.3 0-10 1.7-10 5v3h20v-3c0-3.3-6.7-5-10-5z" />
+                </svg>
+                <span id="count">0</span>
+            </span>
+
+            <!-- Icono palabra (estilo etiqueta / chat bubble / speech bubble) -->
+            <span style="display:flex; align-items:center; gap:6px">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M4 4h16v12H5.17L4 17.17V4zm2 4v2h12V8H6zm0 4v2h8v-2H6z" />
+                </svg>
+                <span id="wordCount">0</span>
+            </span>
+
+        </p>
         <canvas id="cloud"></canvas>
         <footer
             style="text-align: center; padding: 15px 0; font-family: 'Roboto', sans-serif; font-size: 0.9rem; color: #666;">
