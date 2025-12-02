@@ -144,7 +144,6 @@
             min-width: 260px;
         }
 
-
         #qrcode {
             width: 220px;
             height: 220px;
@@ -162,6 +161,7 @@
             color: white;
             cursor: pointer;
             font-size: 14px;
+            z-index: 10;
             transition: transform 0.25s;
         }
 
@@ -221,9 +221,11 @@
             <canvas id="cloud"></canvas>
 
             <aside id="qrPanel" class="qr-panel">
-                <button id="toggleQR" class="toggle-btn">⮞</button>
                 <div id="qrcode"></div>
             </aside>
+
+            <!-- Botón toggle fuera del panel -->
+            <button id="toggleQR" class="toggle-btn">⮞</button>
         </div>
 
         <footer style="text-align: center; padding: 15px 0; font-size: 0.9rem; color: #666;">
@@ -254,27 +256,22 @@
         /* PANEL QR DESPLEGABLE */
         const qrPanel = document.getElementById('qrPanel');
         const toggleQR = document.getElementById('toggleQR');
-        const canvas = document.getElementById('cloud');
 
-        // Función que ajusta el canvas cuando se abre/cierra el panel QR
         function updateCanvasSize() {
             if (window.lastCloudData) renderWordCloud(window.lastCloudData);
         }
 
-        // Toggle del panel QR
         toggleQR.addEventListener('click', () => {
             const isOpen = qrPanel.classList.toggle('open');
             toggleQR.textContent = isOpen ? "⮜" : "⮞";
-            setTimeout(updateCanvasSize, 360); // esperar transición CSS
+            setTimeout(updateCanvasSize, 360);
         });
 
-        // Evento que se dispara cuando se genera un QR (crear sesión o nueva pregunta)
         document.addEventListener("qr-loaded", () => {
             qrPanel.classList.add("open");
             toggleQR.textContent = "⮜";
             updateCanvasSize();
         });
-
 
         window.APP_ROLE = 'organizer';
     </script>

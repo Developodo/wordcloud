@@ -30,11 +30,6 @@ body {
     height: 240px;
 }
 
-#cloud {
-    width: 100%;
-    margin: 0 auto;
-    display: block;
-}
 
 main.card {
     margin: 0 auto;
