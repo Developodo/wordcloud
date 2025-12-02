@@ -141,7 +141,11 @@ if (window.APP_ROLE === 'organizer') {
 
         $('sessionId') && ($('sessionId').textContent = sessionId);
         const url = `${BACKEND}/visitor.html#session=${sessionId}`;
-        $('sessionUrl') && ($('sessionUrl').href = $('sessionUrl').textContent = url);
+        const sessionUrlEl = $('sessionUrl');
+        if (sessionUrlEl) {
+            sessionUrlEl.href = url;
+            sessionUrlEl.textContent = url;
+        }
 
         const qrEl = $('qrcode');
         if (qrEl) {
@@ -228,16 +232,16 @@ if (window.APP_ROLE === 'visitor' && currentSession) {
     });
 }
 
-// -------------------- Panel QR desplegable --------------------
-const qrPanel = $('qrPanel');
-const toggleQR = $('toggleQR');
-toggleQR?.addEventListener('click', () => {
-    qrPanel.classList.toggle('open');
-    toggleQR.textContent = qrPanel.classList.contains('open') ? "⮜" : "⮞";
+// -------------------- Panel QR desplegable (solo una declaración) --------------------
+const qrPanelElement = $('qrPanel');
+const toggleQRElement = $('toggleQR');
+toggleQRElement?.addEventListener('click', () => {
+    qrPanelElement.classList.toggle('open');
+    toggleQRElement.textContent = qrPanelElement.classList.contains('open') ? "⮜" : "⮞";
     if (window.lastCloudData) setTimeout(() => renderWordCloud(window.lastCloudData), 350);
 });
 
 document.addEventListener("qr-loaded", () => {
-    qrPanel.classList.add("open");
-    toggleQR.textContent = "⮜";
+    qrPanelElement?.classList.add("open");
+    toggleQRElement && (toggleQRElement.textContent = "⮜");
 });
