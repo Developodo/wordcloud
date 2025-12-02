@@ -23,18 +23,15 @@ if (!sid) {
 window.FORCED_SESSION = sid;
 currentSession = sid; // 🔥 CLAVE: definimos la sesión antes de conectarnos
 
-const blacklist = [
-    'mierda', 'mierdas', 'puta', 'putas', 'coño', 'coños', 'joder', 'jodete', 'gilipollas', 'cabron', 'cabrona', 'cabrones', 'hostia', 'hostias', 'pendejo', 'pendeja', 'idiota', 'imbecil', 'imbeciles', 'culero', 'culeros', 'chingar', 'chingada', 'chinga', 'carajo', 'maricon', 'maricones', 'zorra', 'zorras', 'baboso', 'babosa', 'mamon', 'mamona', 'cojones', 'culi', 'hijodeputa', 'hijueputa', 'polla', 'pollas', 'verga', 'vergas', 'chingon', 'chingona', 'tonto', 'tonta', 'burro', 'burra', 'culiado', 'forro', 'chupapolla', 'mierdoso', 'chingadera', 'gilipollez', 'pendejada', 'malparido', 'malparida', 'cabronazo', 'mariconazo', 'cagada', 'cagado', 'desgraciado', 'desgraciada', 'hijoputa', 'hijueputa', 'pajero', 'pajera', 'culo', 'mamada', 'panocha', 'papaya', 'choto', 'chucha', 'chingapinga', 'chingue', 'chingas', 'chingues', 'pedo', 'pedazo', 'maldito', 'maldita', 'retardado', 'retardada', 'zoquete', 'gandul', 'gandula', 'bastardo', 'bastarda', 'tarado', 'tarada', 'lamemierda', 'cojonudo', 'cojonuda', 'culiao', 'culia', 'mariconada', 'putamadre', 'putaquepario', 'hijodemilputa', 'coñaculo', 'vergon', 'vergonazo', 'trolas', 'pajota', 'imbesil', 'cagandote', 'cagandola', 'culiatros', 'puton', 'putona', 'gilipuertas', 'cojuda', 'cojudas', 'cerdo', 'cerdos', 'cerda', 'cerdas', 'perra', 'perras', 'perro', 'perros', 'zopenca', 'zopencas', 'culona', 'culonas', 'cojida', 'cojidas', 'jodido', 'jodida', 'pajotero', 'pajotera', 'tontito', 'tontita', 'gilipoyas', 'cagón', 'cagona', 'hostias', 'mierdica', 'huevon', 'huevón', 'malparidos', 'malparidas', 'cagando', 'cojudo', 'cojuda', 'cabrone', 'burdel', 'estupido', 'estúpido', 'estúpida', 'idiotas', 'zoquetes', 'chingatumadre', 'pendejoso', 'pendejosa', 'culiatra', 'hijueputamadre', 'coñaculo', 'cojones', 'mierdas', 'putas', 'pendejazo', 'pendejita', 'malparido', 'malparida', 'hijoputa', 'hijueputa', 'cojida', 'cojidas', 'tonto', 'tonta', 'imbecil', 'imbeciles', 'zoquete', 'zoquetes', 'maricon', 'maricona', 'puton', 'putona', 'cagón', 'cagona', 'burdel', 'pajero', 'pajera', 'gilipollas', 'gilipoyas', 'hostia', 'hostias', 'chingar', 'chingada', 'chingas', 'chingue', 'cojudo', 'cojuda', 'culiao', 'culia', 'cabron', 'cabrona', 'cabrones', 'desgraciado', 'desgraciada', 'idiota', 'idiotas', 'retardado', 'retardada', 'lamemierda', 'mierdoso', 'mierdosa', 'maldito', 'maldita', 'papaya', 'pajota', 'imbesil', 'hijodemilputa', 'chingapinga', 'vergon', 'vergonazo', 'panocha', 'mamada', 'choto', 'chucha'
-];
+const blacklist = [ /* ... tu lista completa ... */];
 
 // Función para filtrar palabrotas
 function containsBadWord(text) {
     const normalized = text
         .toLowerCase()
         .normalize('NFD')
-        .replace(/[\u0300-\u036f]/g, '') // quita tildes
-        .replace(/\s+/g, ''); // elimina espacios
-
+        .replace(/[\u0300-\u036f]/g, '')
+        .replace(/\s+/g, '');
     return blacklist.some(word => normalized.includes(word));
 }
 
@@ -64,7 +61,6 @@ if (window.APP_ROLE === 'organizer') {
                 sessionUrlEl.textContent = url;
             }
 
-            // Generar QR
             const qrEl = $('qrcode');
             if (qrEl) {
                 qrEl.innerHTML = '';
@@ -104,20 +100,20 @@ if (window.APP_ROLE === 'visitor' && currentSession) {
     const sendBtn = $('sendBtn');
     const wordsInput = $('wordsInput');
 
-    // 🔥 BLOQUEO INMEDIATO — incluso antes de conectar socket
     const sessionKey = `sentWords_${currentSession}`;
     if (localStorage.getItem(sessionKey)) {
         if (wordsInput) wordsInput.disabled = true;
         if (sendBtn) sendBtn.disabled = true;
         canSend = false;
     }
-    let lastQuestion = null; // para controlar nuevas preguntas
+
+    let lastQuestion = null;
+
     socket.on('connect', () => {
         if (window.FORCED_SESSION) {
             currentSession = window.FORCED_SESSION;
             joinSession(currentSession);
 
-            // 🔒 Verificar si ya se envió y bloquear
             const sessionKey = `sentWords_${currentSession}`;
             if (localStorage.getItem(sessionKey)) {
                 if (wordsInput) wordsInput.disabled = true;
@@ -132,7 +128,6 @@ if (window.APP_ROLE === 'visitor' && currentSession) {
         if (e.key === 'Enter') sendWordsFromInput();
     });
 
-    // Función para normalizar texto: minúsculas y quitar tildes
     function normalizeText(text) {
         return text
             .toLowerCase()
@@ -141,7 +136,6 @@ if (window.APP_ROLE === 'visitor' && currentSession) {
             .trim();
     }
 
-    // Función para enviar palabras/frases
     function sendWordsFromInput() {
         if (!canSend) return;
         if (!currentSession) return alert('No estás en ninguna sesión');
@@ -169,11 +163,8 @@ if (window.APP_ROLE === 'visitor' && currentSession) {
         canSend = false;
     }
 
-    // Desbloqueo al recibir nueva pregunta
     socket.on("question", q => {
-
         if (q !== lastQuestion && lastQuestion !== null) {
-            // Nueva pregunta distinta, desbloquear
             localStorage.removeItem(sessionKey);
             if (wordsInput) wordsInput.disabled = false;
             if (sendBtn) sendBtn.disabled = false;
@@ -181,9 +172,7 @@ if (window.APP_ROLE === 'visitor' && currentSession) {
             if (wordsInput) wordsInput.focus();
             lastQuestion = q;
         }
-        if (lastQuestion == null) {
-            lastQuestion = q;
-        }
+        if (lastQuestion == null) lastQuestion = q;
     });
 }
 
@@ -209,18 +198,17 @@ function joinSession(sessionId) {
     socket.emit('joinSession', sessionId);
 }
 
-// Recibir número de participantes
 socket.on('participants', n => {
     const countEl = $('count');
     if (countEl) countEl.textContent = n;
 });
 
-// Recibir número total de palabras/frases únicas
 socket.on("wordCount", count => {
     const wordCountEl = $('wordCount');
     if (wordCountEl) wordCountEl.textContent = count;
 });
 
+// -------------------- Nube de palabras --------------------
 // -------------------- Nube de palabras --------------------
 function renderWordCloud(map) {
     const list = Object.entries(map || {}).map(([w, f]) => [w, f]);
@@ -248,21 +236,30 @@ function renderWordCloud(map) {
     try {
         WordCloud(canvas, {
             list,
-            gridSize: Math.round(16 * width / 1024),
-            weightFactor: size => {
+
+            // Tamaño de celda adaptado al ancho real
+            gridSize: Math.max(8, Math.round(16 * width / 1024)),
+
+            // ⛔ nuevo: garantiza que ninguna palabra supere ancho ni alto
+            weightFactor: freq => {
                 const maxFreq = list.length ? Math.max(...list.map(([_, f]) => f)) : 1;
-                return Math.min(width, height) / 4 * (size / maxFreq);
+                const base = (Math.min(width, height) / 4);
+                const scaled = base * (freq / maxFreq);
+                return Math.min(scaled, width / 4); // límite duro
             },
+
             fontFamily: 'Segoe UI, Roboto, Arial, sans-serif',
             color: () => randomSoftColor(),
+
             rotateRatio: 0,
             rotationSteps: 1,
             rotateAngles: [0],
-            backgroundColor: '#ffffff',
+
             drawOutOfBound: false,
             shuffle: true,
             ellipticity: 1,
-            origin: [width / 2, height / 2]
+            origin: [width / 2, height / 2],
+            backgroundColor: '#ffffff',
         });
         canvas.style.display = 'block';
     } catch (e) {
@@ -270,16 +267,32 @@ function renderWordCloud(map) {
     }
 }
 
-socket.on('cloud', renderWordCloud);
+
+// -------------------- LA ANIMACIÓN AL LLEGAR NUEVA PALABRA --------------------
+socket.on('cloud', map => {
+    window.lastCloudData = map;
+
+    const canvas = $('cloud');
+    if (!canvas) return;
+
+    // 🔥 animación suave tipo Mentimeter
+    canvas.style.transition = 'none';
+    canvas.style.opacity = '0';
+    canvas.style.transform = 'scale(0.9)';
+    canvas.offsetHeight; // forzar reflow
+
+    canvas.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
+    canvas.style.opacity = '1';
+    canvas.style.transform = 'scale(1)';
+
+    renderWordCloud(map);
+});
+
 
 // -------------------- Redimensionamiento automático --------------------
 window.addEventListener('resize', () => {
     if (window.lastCloudData) renderWordCloud(window.lastCloudData);
 });
 
-socket.on('cloud', map => {
-    window.lastCloudData = map;
-});
 
-// -------------------- Manejo de errores de conexión --------------------
 socket.on('connect_error', (err) => console.warn('connect_error', err));
