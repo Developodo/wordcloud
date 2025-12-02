@@ -254,16 +254,16 @@ if (window.APP_ROLE === 'visitor' && currentSession) {
         const raw = wordsInput.value.trim();
         if (!raw) return;
 
-        const words = raw.split(/\s+/).slice(0, 2).map(normalizeText);
+        const wordsArray = raw.split(/\s+/); // separa TODAS las palabras
 
         // Validación de número de palabras
-        if (words.length > 2) {
+        if (wordsArray.length > 2) {
             alert('Solo se permiten hasta 2 palabras.');
             return;
         }
 
-        const phrase = raw.split(/\s+/).slice(0, 2).map(normalizeText).join(' ');
-        if (!phrase) return;
+        const words = wordsArray.map(normalizeText);
+        const phrase = words.join(' '); if (!phrase) return;
         if (containsBadWord(phrase)) { alert('Tu mensaje contiene palabras no permitidas.'); wordsInput.value = ''; return; }
 
         socket.emit('sendWords', [phrase]);
