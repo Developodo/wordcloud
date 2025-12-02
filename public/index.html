@@ -25,6 +25,7 @@
             background: #fff;
             border-radius: 12px;
             box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+            padding: 20px;
         }
 
         h1 {
@@ -111,38 +112,34 @@
         .cloud-wrapper {
             display: flex;
             width: 100%;
-            max-width: 100%;
             height: 450px;
-            margin-top: 20px;
             position: relative;
         }
 
         #cloud {
-            flex-grow: 1;
-            flex-basis: 100%;
-            height: 100%;
+            flex: 1 1 100%;
             border: 1px solid #ddd;
             border-radius: 8px 0 0 8px;
-            transition: all 0.35s ease;
+            height: 100%;
+            transition: flex 0.35s ease;
         }
 
         .qr-panel {
-            width: 0;
-            min-width: 0;
+            flex: 0 0 0%;
+            max-width: 0;
             overflow: hidden;
             background: #fafafa;
             border-left: 1px solid #ddd;
             display: flex;
             flex-direction: column;
             align-items: center;
-            transition: width 0.35s ease, min-width 0.35s ease;
+            transition: flex 0.35s ease, max-width 0.35s ease;
             padding-top: 20px;
-            position: relative;
         }
 
         .qr-panel.open {
-            width: 30%;
-            min-width: 260px;
+            flex: 0 0 30%;
+            max-width: 260px;
         }
 
         #qrcode {
@@ -154,7 +151,6 @@
             position: absolute;
             top: 10px;
             left: -28px;
-            /* al lado del QR */
             width: 28px;
             height: 28px;
             border-radius: 50%;
@@ -166,7 +162,7 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            z-index: 10;
+            z-index: 20;
             transition: transform 0.25s;
         }
 
@@ -228,7 +224,6 @@
                 <div id="qrcode"></div>
             </aside>
 
-            <!-- Botón toggle siempre visible al lado del QR -->
             <button id="toggleQR" class="toggle-btn">⯈</button>
         </div>
 
@@ -244,6 +239,9 @@
     <script>
         const helpIcon = document.getElementById('helpIcon');
         const tooltip = document.getElementById('tooltip');
+        const qrPanel = document.getElementById('qrPanel');
+        const toggleQR = document.getElementById('toggleQR');
+        const cloud = document.getElementById('cloud');
 
         helpIcon.addEventListener('click', () => {
             tooltip.style.display = tooltip.style.display === 'block' ? 'none' : 'block';
@@ -253,30 +251,44 @@
             if (!helpIcon.contains(e.target) && !tooltip.contains(e.target)) tooltip.style.display = 'none';
         });
 
-        const qrPanel = document.getElementById('qrPanel');
-        const toggleQR = document.getElementById('toggleQR');
-        const cloud = document.getElementById('cloud');
+        // Función para redimensionar y renderizar el canvas
+        function resizeCloud() {
+            const wrapper = cloud.parentElement;
+            cloud.width = wrapper.clientWidth - (qrPanel.classList.contains('open') ? qrPanel.offsetWidth : 0);
+            cloud.height = wrapper.clientHeight;
+            if (window.lastCloudData) {
+                renderWordCloud(window.lastCloudData, { canvas: cloud });
+            }
+        }
 
-        function updateCanvasSize() {
-            if (window.lastCloudData) renderWordCloud(window.lastCloudData);
+        // Abrir/cerrar panel QR
+        function setQR(open) {
+            if (open) {
+                qrPanel.classList.add('open');
+                toggleQR.textContent = '⯇';
+            } else {
+                qrPanel.classList.remove('open');
+                toggleQR.textContent = '⯈';
+            }
+            setTimeout(resizeCloud, 360); // esperar la transición
         }
 
         // Toggle manual
         toggleQR.addEventListener('click', () => {
-            const isOpen = qrPanel.classList.toggle('open');
-            toggleQR.textContent = isOpen ? '⯇' : '⯈';
-            setTimeout(updateCanvasSize, 360);
+            setQR(!qrPanel.classList.contains('open'));
         });
 
         // Abrir QR automáticamente al cargar QR
         document.addEventListener('qr-loaded', () => {
-            qrPanel.classList.add('open');
-            toggleQR.textContent = '⯇';
-            setTimeout(updateCanvasSize, 360);
+            setQR(true);
         });
+
+        // Redibujar al cambiar tamaño de ventana
+        window.addEventListener('resize', resizeCloud);
 
         window.APP_ROLE = 'organizer';
     </script>
+
 
     <script src="/app.js"></script>
 
