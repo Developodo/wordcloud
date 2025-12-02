@@ -233,13 +233,20 @@ if (window.APP_ROLE === 'visitor' && currentSession) {
 }
 
 // -------------------- Panel QR desplegable (solo una declaración) --------------------
-const qrPanelElement = $('qrPanel');
-const toggleQRElement = $('toggleQR');
-toggleQRElement?.addEventListener('click', () => {
-    qrPanelElement.classList.toggle('open');
-    toggleQRElement.textContent = qrPanelElement.classList.contains('open') ? "⮜" : "⮞";
-    if (window.lastCloudData) setTimeout(() => renderWordCloud(window.lastCloudData), 350);
+const qrPanel = document.getElementById('qrPanel');
+const toggleQR = document.getElementById('toggleQR');
+const canvas = document.getElementById('cloud');
+
+toggleQR.addEventListener('click', () => {
+    const isOpen = qrPanel.classList.toggle('open');
+    toggleQR.textContent = isOpen ? "⮜" : "⮞";
+
+    // Forzar redibujo del canvas después de la transición
+    setTimeout(() => {
+        if (window.lastCloudData) renderWordCloud(window.lastCloudData);
+    }, 360);
 });
+
 
 document.addEventListener("qr-loaded", () => {
     qrPanelElement?.classList.add("open");
