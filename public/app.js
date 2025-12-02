@@ -179,9 +179,9 @@ if (window.APP_ROLE === 'visitor' && currentSession) {
     let lastQuestion = null;
 
     if (localStorage.getItem(sessionKey)) {
-        wordsInput && (wordsInput.disabled = true);
-        sendBtn && (sendBtn.disabled = true);
-        canSend = false;
+        // wordsInput && (wordsInput.disabled = true);
+        // sendBtn && (sendBtn.disabled = true);
+        // canSend = false;
     }
 
     socket.on('connect', () => {
