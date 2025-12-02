@@ -149,11 +149,11 @@
 
         .toggle-btn {
             position: absolute;
-            top: 10px;
-            left: -28px;
+            top: 0px;
+            right: 0px;
             width: 28px;
             height: 28px;
-            border-radius: 50%;
+
             border: none;
             background: #1a73e8;
             color: white;
@@ -267,10 +267,10 @@
         function setQR(open) {
             if (open) {
                 qrPanel.classList.add('open');
-                toggleQR.textContent = '<';
+                toggleQR.textContent = '>';
             } else {
                 qrPanel.classList.remove('open');
-                toggleQR.textContent = '>';
+                toggleQR.textContent = '<';
             }
             setTimeout(resizeCloud, 360); // esperar la transición
         }
