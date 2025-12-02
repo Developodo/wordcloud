@@ -7,9 +7,11 @@
     <link rel="icon" type="image/x-icon" href="/logo.ico">
     <title>Wordcloud</title>
     <link rel="stylesheet" href="/style.css">
+
     <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/wordcloud@1.1.2/src/wordcloud2.js"></script>
     <script src="https://cdn.jsdelivr.net/gh/davidshimjs/qrcodejs/qrcode.min.js"></script>
+
     <style>
         body {
             font-family: "Segoe UI", Arial, sans-serif;
@@ -29,7 +31,6 @@
         }
 
         h1 {
-            text-align: center;
             margin-bottom: 20px;
             font-weight: 700;
             color: #1a73e8;
@@ -59,30 +60,6 @@
         button:disabled {
             background: #aaa;
             cursor: not-allowed;
-        }
-
-        #qrcode {
-            margin: 20px auto;
-            width: 240px;
-            height: 240px;
-        }
-
-        #cloud {
-            width: 100%;
-            height: 100%;
-            margin: 20px auto;
-            display: block;
-            border: 1px solid #ddd;
-            border-radius: 8px;
-        }
-
-        #newQuestionBtn {
-            display: none;
-        }
-
-        #currentQuestion {
-            font-weight: bold;
-            margin: 15px 0;
         }
 
         .help-icon {
@@ -132,85 +109,181 @@
             border-style: solid;
             border-color: transparent transparent #1a73e8 transparent;
         }
+
+        /* --------------------------- */
+        /* PANEL QR + CANVAS LAYOUT   */
+        /* --------------------------- */
+        .cloud-wrapper {
+            display: flex;
+            width: 100%;
+            height: 450px;
+            transition: all 0.35s ease;
+            position: relative;
+            margin-top: 20px;
+        }
+
+        #cloud {
+            flex: 1;
+            height: 100%;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            transition: all 0.35s ease;
+        }
+
+        /* Panel QR */
+        .qr-panel {
+            width: 0;
+            overflow: hidden;
+            background: #fafafa;
+            border-left: 1px solid #ddd;
+            border-radius: 0 8px 8px 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            transition: all 0.35s ease;
+            padding-top: 20px;
+            position: relative;
+        }
+
+        .qr-panel.open {
+            width: 30%;
+            min-width: 260px;
+        }
+
+        #qrcode {
+            width: 220px;
+            height: 220px;
+        }
+
+        /* Botón plegable */
+        .toggle-btn {
+            position: absolute;
+            left: -28px;
+            top: 10px;
+            width: 26px;
+            height: 26px;
+            border-radius: 50%;
+            border: none;
+            background: #1a73e8;
+            color: white;
+            cursor: pointer;
+            font-size: 14px;
+            transition: transform 0.25s;
+        }
+
+        .toggle-btn:hover {
+            transform: scale(1.1);
+        }
     </style>
 </head>
 
 <body>
+
     <main class="card">
+
         <div style="text-align: center;">
-            <img src="/logo.png" alt="Logo" style="width: 50%; max-width: 100%; height: auto; max-width: 300px;">
+            <img src="/logo.png" alt="Logo" style="width: 50%; max-width: 300px; height: auto;">
             <span class="help-icon" id="helpIcon">?</span>
         </div>
+
         <div class="tooltip" id="tooltip">
-            Nueva nube para crear un nuevo QR y conectar usuarios asociados a una pregunta o enunciado.
-            Una vez conectados los usuarios, no debe refrescar más. Puedes ir añadiendo nuevas preguntas sin necesidad
-            de crear nuevas nubes.
-            El usuario solo puede añadir una palabra por cada pregunta, con máximo un espacio y longitud de 25
-            caracteres.
+            Nueva nube para crear un nuevo QR y conectar usuarios asociados a una pregunta.
+            Una vez conectados los usuarios, no debe refrescar más. Puedes ir añadiendo nuevas preguntas sin crear
+            nuevas nubes.
+            El usuario solo puede añadir una palabra por pregunta, máximo un espacio y 25 caracteres.
         </div>
+
         <div class="controls">
             <button id="createBtn">Crear nube</button>
             <div id="sessionBox" class="hidden">
                 <p style="display: none">Session ID: <strong id="sessionId"></strong></p>
-                <div id="qrcode"></div>
             </div>
             <button id="newQuestionBtn">Nueva pregunta</button>
         </div>
-        <p>URL: <a id="sessionUrl"></a></p>
-        <h1 style="font-weight: bold;">Pregunta actual: <span id="question">N/A</span></h1>
-        <p style="display:flex; gap:20px; align-items:center; font-size:18px">
 
-            <!-- Icono persona -->
+        <p>URL: <a id="sessionUrl"></a></p>
+
+        <h1>Pregunta actual: <span id="question">N/A</span></h1>
+
+        <p style="display:flex; gap:20px; justify-content:center; align-items:center; font-size:18px">
             <span style="display:flex; align-items:center; gap:6px">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                <svg width="20" height="20" viewBox="0 0 24 24">
                     <path
                         d="M12 12c2.7 0 5-2.3 5-5s-2.3-5-5-5-5 2.3-5 5 2.3 5 5 5zm0 2c-3.3 0-10 1.7-10 5v3h20v-3c0-3.3-6.7-5-10-5z" />
                 </svg>
                 <span id="count">0</span>
             </span>
 
-            <!-- Icono palabra (estilo etiqueta / chat bubble / speech bubble) -->
             <span style="display:flex; align-items:center; gap:6px">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                <svg width="20" height="20" viewBox="0 0 24 24">
                     <path d="M4 4h16v12H5.17L4 17.17V4zm2 4v2h12V8H6zm0 4v2h8v-2H6z" />
                 </svg>
                 <span id="wordCount">0</span>
             </span>
-
         </p>
-        <canvas id="cloud"></canvas>
-        <footer
-            style="text-align: center; padding: 15px 0; font-family: 'Roboto', sans-serif; font-size: 0.9rem; color: #666;">
+
+        <!-- WRAPPER CANVAS + PANEL QR -->
+        <div id="cloudWrapper" class="cloud-wrapper">
+            <canvas id="cloud"></canvas>
+
+            <aside id="qrPanel" class="qr-panel">
+                <button id="toggleQR" class="toggle-btn">⮞</button>
+                <div id="qrcode"></div>
+            </aside>
+        </div>
+
+        <footer style="text-align: center; padding: 15px 0; font-size: 0.9rem; color: #666;">
             Creado por <a href="https://www.linkedin.com/in/carlosserranosanchez/" target="_blank"
-                style="color: #1a73e8; text-decoration: none; transition: color 0.3s;">
+                style="color:#1a73e8;">
                 Carlos Serrano
             </a>
         </footer>
+
     </main>
+
     <script>
+        /* TOOLTIP AYUDA */
         const helpIcon = document.getElementById('helpIcon');
         const tooltip = document.getElementById('tooltip');
 
         helpIcon.addEventListener('click', () => {
-            if (tooltip.style.display === 'block') {
+            tooltip.style.display = tooltip.style.display === 'block'
+                ? 'none'
+                : 'block';
+        });
+
+        document.addEventListener('click', (e) => {
+            if (!helpIcon.contains(e.target) && !tooltip.contains(e.target))
                 tooltip.style.display = 'none';
-            } else {
-                tooltip.style.display = 'block';
+        });
+    </script>
+
+    <script>
+        /* PANEL QR DESPLEGABLE */
+        const qrPanel = document.getElementById('qrPanel');
+        const toggleQR = document.getElementById('toggleQR');
+
+        toggleQR.addEventListener('click', () => {
+            qrPanel.classList.toggle('open');
+            toggleQR.textContent = qrPanel.classList.contains('open') ? "⮜" : "⮞";
+
+            if (window.lastCloudData) {
+                setTimeout(() => renderWordCloud(window.lastCloudData), 350);
             }
         });
 
-        // Cerrar tooltip al hacer clic fuera
-        document.addEventListener('click', (e) => {
-            if (!helpIcon.contains(e.target) && !tooltip.contains(e.target)) {
-                tooltip.style.display = 'none';
-            }
+        document.addEventListener("qr-loaded", () => {
+            qrPanel.classList.add("open");
+            toggleQR.textContent = "⮜";
         });
     </script>
 
     <script>
         window.APP_ROLE = 'organizer';
     </script>
+
     <script src="/app.js"></script>
+
 </body>
 
 </html>
