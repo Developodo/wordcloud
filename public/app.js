@@ -247,8 +247,7 @@ toggleQR.addEventListener('click', () => {
     }, 360);
 });
 
-
 document.addEventListener("qr-loaded", () => {
-    qrPanelElement?.classList.add("open");
-    toggleQRElement && (toggleQRElement.textContent = "⮜");
+    qrPanel.classList.add("open");
+    toggleQR.textContent = "⮜";
 });
