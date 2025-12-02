@@ -194,41 +194,42 @@
                 <p style="display: none">Session ID: <strong id="sessionId"></strong></p>
             </div>
         </div>
+        <div id="game" style="display:none">
+            <p>URL: <a id="sessionUrl"></a></p>
 
-        <p>URL: <a id="sessionUrl"></a></p>
-
-        <h1>Pregunta actual: <span id="question">N/A</span></h1>
+            <h1>Pregunta actual: <span id="question">N/A</span></h1>
 
 
 
-        <div id="cloudWrapper" class="cloud-wrapper">
-            <canvas id="cloud"></canvas>
+            <div id="cloudWrapper" class="cloud-wrapper">
+                <canvas id="cloud"></canvas>
 
-            <aside id="qrPanel" class="qr-panel">
-                <div id="qrcode"></div>
-            </aside>
+                <aside id="qrPanel" class="qr-panel">
+                    <div id="qrcode"></div>
+                </aside>
 
-            <button id="toggleQR" class="toggle-btn">></button>
+                <button id="toggleQR" class="toggle-btn">></button>
+            </div>
+            <p style="display:flex; gap:20px; justify-content:center; align-items:center; font-size:18px">
+                <span style="display:flex; align-items:center; gap:6px">
+                    <svg width="20" height="20" viewBox="0 0 24 24">
+                        <path
+                            d="M12 12c2.7 0 5-2.3 5-5s-2.3-5-5-5-5 2.3-5 5 2.3 5 5 5zm0 2c-3.3 0-10 1.7-10 5v3h20v-3c0-3.3-6.7-5-10-5z" />
+                    </svg>
+                    <span id="count">0</span>
+                </span>
+
+                <span style="display:flex; align-items:center; gap:6px">
+                    <svg width="20" height="20" viewBox="0 0 24 24">
+                        <path d="M4 4h16v12H5.17L4 17.17V4zm2 4v2h12V8H6zm0 4v2h8v-2H6z" />
+                    </svg>
+                    <span id="wordCount">0</span>
+                </span>
+
+                <button id="newQuestionBtn" style="display:none;">Nueva pregunta</button>
+
+            </p>
         </div>
-        <p style="display:flex; gap:20px; justify-content:center; align-items:center; font-size:18px">
-            <span style="display:flex; align-items:center; gap:6px">
-                <svg width="20" height="20" viewBox="0 0 24 24">
-                    <path
-                        d="M12 12c2.7 0 5-2.3 5-5s-2.3-5-5-5-5 2.3-5 5 2.3 5 5 5zm0 2c-3.3 0-10 1.7-10 5v3h20v-3c0-3.3-6.7-5-10-5z" />
-                </svg>
-                <span id="count">0</span>
-            </span>
-
-            <span style="display:flex; align-items:center; gap:6px">
-                <svg width="20" height="20" viewBox="0 0 24 24">
-                    <path d="M4 4h16v12H5.17L4 17.17V4zm2 4v2h12V8H6zm0 4v2h8v-2H6z" />
-                </svg>
-                <span id="wordCount">0</span>
-            </span>
-
-            <button id="newQuestionBtn" style="display:none;">Nueva pregunta</button>
-
-        </p>
         <footer style="text-align: center; padding: 15px 0; font-size: 0.9rem; color: #666;">
             Creado por <a href="https://www.linkedin.com/in/carlosserranosanchez/" target="_blank"
                 style="color:#1a73e8;">

@@ -180,8 +180,8 @@ if (window.APP_ROLE === 'organizer') {
 
     createBtn?.addEventListener('click', async () => {
         const question = prompt("Introduce la pregunta para esta sesión:");
-        if (!question) return alert("Debes introducir una pregunta");
-
+        if (!question) return alert("Debes introducir una pregunta sobre la que hacer la nube de palabras");
+        document.getElementById('game').style.display = 'block';
         const res = await fetch(`${BACKEND}/create-session`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
