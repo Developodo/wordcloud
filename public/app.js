@@ -258,8 +258,8 @@ if (window.APP_ROLE === 'visitor' && currentSession) {
 
         // Validación de número de palabras
         if (wordsArray.length > 2) {
-            alert('Solo se permiten hasta 2 palabras.');
-            return;
+            //alert('Solo se permiten hasta 2 palabras.');
+            //return;
         }
 
         const words = wordsArray.map(normalizeText);
